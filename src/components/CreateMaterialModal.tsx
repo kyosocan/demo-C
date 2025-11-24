@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { ArrowLeft, Home, X, Image as ImageIcon } from 'lucide-react';
 import { MaterialContent, Tag } from '../types';
-import { gradeTags, subjectTags, typeTags } from '../data/mockData';
+import { gradeTags, subjectTags } from '../data/mockData';
 
 interface CreateMaterialModalProps {
   isOpen: boolean;
@@ -12,7 +12,7 @@ interface CreateMaterialModalProps {
 export default function CreateMaterialModal({ isOpen, onClose, onSuccess }: CreateMaterialModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>('');
   const [selectedGrade, setSelectedGrade] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');

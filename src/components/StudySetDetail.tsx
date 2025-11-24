@@ -13,6 +13,7 @@ import {
   Zap,
   Smartphone,
   Check,
+  X,
 } from 'lucide-react';
 import FlipCard from './FlipCard';
 import MatchingGame from './MatchingGame';
@@ -37,21 +38,6 @@ export default function StudySetDetail({
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [shuffled, setShuffled] = useState(false);
   const [cards, setCards] = useState(content.cards);
-
-  const handlePrevious = () => {
-    setCurrentCardIndex((prev) => (prev > 0 ? prev - 1 : cards.length - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentCardIndex((prev) => (prev < cards.length - 1 ? prev + 1 : 0));
-  };
-
-  const handleShuffle = () => {
-    const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
-    setCards(shuffledCards);
-    setShuffled(true);
-    setCurrentCardIndex(0);
-  };
 
   const handleSyncToDevice = async () => {
     setIsSyncing(true);

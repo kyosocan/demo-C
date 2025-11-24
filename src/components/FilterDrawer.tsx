@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Tag } from '../types';
 import { tagCategories } from '../data/mockData';
 
 interface FilterDrawerProps {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FlashCard } from '../types';
-import { Check, X, Trophy, Timer, RotateCcw } from 'lucide-react';
+import { Check, Trophy, Timer, RotateCcw } from 'lucide-react';
 
 interface MatchingGameProps {
   cards: FlashCard[];
@@ -31,13 +31,15 @@ export default function MatchingGame({ cards, onBack }: MatchingGameProps) {
 
   // 计时器
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isTimerRunning && !isGameComplete) {
       interval = setInterval(() => {
         setTimeElapsed((prev) => prev + 1);
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isTimerRunning, isGameComplete]);
 
   const initGame = () => {

@@ -1,5 +1,5 @@
 import { StudySetContent } from '../types';
-import { BookOpen, Users } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 
 interface StudySetCardProps {
   content: StudySetContent;

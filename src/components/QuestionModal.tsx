@@ -11,7 +11,7 @@ interface QuestionModalProps {
 export default function QuestionModal({ onClose, onSuccess }: QuestionModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
