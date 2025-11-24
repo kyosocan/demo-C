@@ -1,14 +1,14 @@
 # 家长社区 Demo
 
-一个家长社区应用，支持资料分享和答疑互助功能。
+一个家长社区应用演示，包含资料分享和问答互助功能。
 
 ## 功能特性
 
-- 📚 **资料分享**：家长可以上传学习资料，包含封面、标签、文件数量等信息
-- 💬 **答疑互助**：家长可以提问，其他家长可以回答
-- 🔍 **搜索功能**：支持搜索标题和描述
-- 🏷️ **标签筛选**：通过标签快速筛选内容
-- 📱 **小红书风格**：双列图文布局，美观易用
+- 📚 **资料分享**：用户可以上传资料包，并给它们打上标签
+- 💬 **问答互助**：用户可以提问，其他人可以回答
+- 🔍 **搜索和筛选**：支持按年级、学科、难度等标签筛选内容
+- 📱 **移动端适配**：完美适配手机屏幕比例
+- 🎨 **现代化 UI**：参考小红书和知乎的设计风格
 
 ## 技术栈
 
@@ -18,58 +18,60 @@
 - Tailwind CSS
 - Lucide React (图标库)
 
-## 安装和运行
+## 本地开发
 
-1. 安装依赖：
 ```bash
+# 安装依赖
 npm install
-```
 
-2. 启动开发服务器：
-```bash
+# 启动开发服务器
 npm run dev
+
+# 构建生产版本
+npm run build
+
+# 预览构建结果
+npm run preview
 ```
 
-3. 构建生产版本：
-```bash
-npm run build
-```
+## 部署到 GitHub Pages
+
+详细的部署说明请查看 [DEPLOY.md](./DEPLOY.md)
+
+### 快速部署步骤
+
+1. **推送代码到 GitHub**
+   ```bash
+   git add .
+   git commit -m "准备部署"
+   git push origin main
+   ```
+
+2. **在 GitHub 上启用 Pages**
+   - 进入仓库 Settings > Pages
+   - Source 选择 "GitHub Actions"
+
+3. **等待自动部署**
+   - 推送代码后，GitHub Actions 会自动构建和部署
+   - 在 Actions 标签中查看部署状态
+   - 部署完成后，网站地址为：`https://kyosocan.github.io/demo-C/`
 
 ## 项目结构
 
 ```
-src/
-├── components/          # 组件
-│   ├── Header.tsx      # 顶部导航栏
-│   ├── SearchBar.tsx   # 搜索栏
-│   ├── FilterBar.tsx   # 筛选栏
-│   ├── ContentGrid.tsx # 内容网格（双列布局）
-│   ├── ContentCard.tsx # 内容卡片
-│   ├── UploadModal.tsx # 上传资料模态框
-│   └── QuestionModal.tsx # 提问模态框
-├── data/
-│   └── mockData.ts     # 模拟数据
-├── types/
-│   └── index.ts        # 类型定义
-├── App.tsx             # 主应用组件
-├── main.tsx            # 入口文件
-└── index.css           # 全局样式
+community_demo/
+├── public/          # 静态资源
+│   └── image/      # 封面图片
+├── src/
+│   ├── components/ # React 组件
+│   ├── data/       # 模拟数据
+│   ├── types/      # TypeScript 类型定义
+│   └── ...
+├── .github/
+│   └── workflows/  # GitHub Actions 工作流
+└── ...
 ```
 
-## 使用说明
+## 许可证
 
-1. **浏览内容**：主页展示所有资料和问题，采用双列布局
-2. **搜索**：在搜索栏输入关键词搜索
-3. **筛选**：
-   - 点击类型按钮筛选"资料分享"或"答疑互助"
-   - 点击标签进行标签筛选
-4. **上传资料**：点击右上角"上传资料"按钮，填写信息后发布
-5. **提问**：点击右上角"提问"按钮，填写问题后发布
-
-## 内容展示
-
-- **资料分享**：显示下载次数和文件数量
-- **答疑互助**：显示评论数量
-- 所有内容都显示封面图片和标签
-
-# demo-C
+MIT
