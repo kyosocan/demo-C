@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Camera, Upload, Loader2, Sparkles, Zap, Gamepad2, Brain } from 'lucide-react';
+import { X, Camera, Upload, Loader2, Sparkles, Zap, Gamepad2, Brain, Network, Presentation } from 'lucide-react';
 import { StudySetContent, Tag } from '../types';
 import { subjectTags, gradeTags, difficultyTags } from '../data/mockData';
 
@@ -20,7 +20,7 @@ export default function CreateStudySetModal({
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<string[]>(['flashcard', 'matching', 'quiz']);
+  const [selectedItems, setSelectedItems] = useState<string[]>(['flashcard', 'matching', 'quiz', 'mindmap', 'ppt']);
 
   if (!isOpen) return null;
 
@@ -107,7 +107,7 @@ export default function CreateStudySetModal({
     setUploadedFile(null);
     setPreviewUrl('');
     setIsGenerating(false);
-    setSelectedItems(['flashcard', 'matching', 'quiz']);
+    setSelectedItems(['flashcard', 'matching', 'quiz', 'mindmap', 'ppt']);
     onClose();
   };
 
@@ -350,6 +350,50 @@ export default function CreateStudySetModal({
                     <span className="text-sm font-semibold text-gray-900">小测验</span>
                   </div>
                   <p className="text-xs text-gray-600">选择题检验学习效果</p>
+                </div>
+              </label>
+
+              {/* 思维导图 */}
+              <label className="flex items-start gap-3 p-3 bg-white border-2 rounded-xl cursor-pointer transition-all hover:border-indigo-300"
+                style={{
+                  borderColor: selectedItems.includes('mindmap') ? '#6366f1' : '#e5e7eb'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedItems.includes('mindmap')}
+                  onChange={() => toggleItem('mindmap')}
+                  disabled={isGenerating}
+                  className="mt-0.5 w-4 h-4 text-indigo-600 rounded disabled:opacity-50"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <Network className="w-4 h-4 text-indigo-600" />
+                    <span className="text-sm font-semibold text-gray-900">思维导图</span>
+                  </div>
+                  <p className="text-xs text-gray-600">可视化知识结构</p>
+                </div>
+              </label>
+
+              {/* PPT 演示 */}
+              <label className="flex items-start gap-3 p-3 bg-white border-2 rounded-xl cursor-pointer transition-all hover:border-orange-300"
+                style={{
+                  borderColor: selectedItems.includes('ppt') ? '#f97316' : '#e5e7eb'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedItems.includes('ppt')}
+                  onChange={() => toggleItem('ppt')}
+                  disabled={isGenerating}
+                  className="mt-0.5 w-4 h-4 text-orange-600 rounded disabled:opacity-50"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <Presentation className="w-4 h-4 text-orange-600" />
+                    <span className="text-sm font-semibold text-gray-900">PPT 演示</span>
+                  </div>
+                  <p className="text-xs text-gray-600">幻灯片形式展示</p>
                 </div>
               </label>
             </div>

@@ -14,10 +14,14 @@ import {
   Smartphone,
   Check,
   X,
+  Network,
+  Presentation,
 } from 'lucide-react';
 import FlipCard from './FlipCard';
 import MatchingGame from './MatchingGame';
 import QuizGame from './QuizGame';
+import MindMap from './MindMap';
+import PPTViewer from './PPTViewer';
 
 interface StudySetDetailProps {
   content: StudySetContent;
@@ -28,11 +32,11 @@ export default function StudySetDetail({
   content,
   onBack,
 }: StudySetDetailProps) {
-  const [gameMode, setGameMode] = useState<'flashcard' | 'matching' | 'quiz' | null>(null);
+  const [gameMode, setGameMode] = useState<'flashcard' | 'matching' | 'quiz' | 'mindmap' | 'ppt' | null>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncSuccess, setSyncSuccess] = useState(false);
-  const [selectedSyncItems, setSelectedSyncItems] = useState<string[]>(['flashcard', 'matching', 'quiz']);
+  const [selectedSyncItems, setSelectedSyncItems] = useState<string[]>(['flashcard', 'matching', 'quiz', 'mindmap', 'ppt']);
   
   // 闪卡相关状态
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -51,7 +55,7 @@ export default function StudySetDetail({
       setSyncSuccess(false);
       setShowSyncModal(false);
       // 重置选中项为默认全选
-      setSelectedSyncItems(['flashcard', 'matching', 'quiz']);
+      setSelectedSyncItems(['flashcard', 'matching', 'quiz', 'mindmap', 'ppt']);
     }, 2000);
   };
 
@@ -68,7 +72,7 @@ export default function StudySetDetail({
       setShowSyncModal(false);
       setSyncSuccess(false);
       // 重置选中项
-      setSelectedSyncItems(['flashcard', 'matching', 'quiz']);
+      setSelectedSyncItems(['flashcard', 'matching', 'quiz', 'mindmap', 'ppt']);
     }
   };
 
@@ -79,6 +83,14 @@ export default function StudySetDetail({
 
   if (gameMode === 'quiz') {
     return <QuizGame cards={content.cards} onBack={() => setGameMode(null)} />;
+  }
+
+  if (gameMode === 'mindmap') {
+    return <MindMap cards={content.cards} title={content.title} onBack={() => setGameMode(null)} />;
+  }
+
+  if (gameMode === 'ppt') {
+    return <PPTViewer cards={content.cards} title={content.title} onBack={() => setGameMode(null)} />;
   }
 
   // 闪卡模式
@@ -275,6 +287,54 @@ export default function StudySetDetail({
                 <span>📝 选择题</span>
                 <span>📊 成绩分析</span>
                 <span>🏆 即时反馈</span>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 mt-2" />
+          </div>
+        </button>
+
+        {/* 思维导图 */}
+        <button
+          onClick={() => setGameMode('mindmap')}
+          className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all active:scale-[0.98] text-left border border-gray-100"
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Network className="w-7 h-7 text-white" />
+            </div>
+            <div className="flex-1">
+              <h4 className="text-lg font-bold text-gray-900 mb-1">思维导图</h4>
+              <p className="text-sm text-gray-600 mb-2">
+                可视化展示知识结构，理清知识脉络
+              </p>
+              <div className="flex items-center gap-3 text-xs text-gray-500">
+                <span>🌳 树状图</span>
+                <span>🔍 可缩放</span>
+                <span>🎨 多彩分支</span>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 mt-2" />
+          </div>
+        </button>
+
+        {/* PPT 演示 */}
+        <button
+          onClick={() => setGameMode('ppt')}
+          className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all active:scale-[0.98] text-left border border-gray-100"
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Presentation className="w-7 h-7 text-white" />
+            </div>
+            <div className="flex-1">
+              <h4 className="text-lg font-bold text-gray-900 mb-1">PPT 演示</h4>
+              <p className="text-sm text-gray-600 mb-2">
+                幻灯片形式展示，适合课堂讲解
+              </p>
+              <div className="flex items-center gap-3 text-xs text-gray-500">
+                <span>📽️ 全屏模式</span>
+                <span>⏯️ 自动播放</span>
+                <span>🎯 演示效果</span>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 mt-2" />
@@ -493,6 +553,48 @@ export default function StudySetDetail({
                             <span className="font-semibold text-gray-900">小测验</span>
                           </div>
                           <p className="text-xs text-gray-600">选择正确答案，检验学习成果</p>
+                        </div>
+                      </label>
+
+                      {/* 思维导图 */}
+                      <label className="flex items-start gap-3 p-4 bg-white border-2 rounded-xl cursor-pointer transition-all hover:border-indigo-300"
+                        style={{
+                          borderColor: selectedSyncItems.includes('mindmap') ? '#6366f1' : '#e5e7eb'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedSyncItems.includes('mindmap')}
+                          onChange={() => toggleSyncItem('mindmap')}
+                          className="mt-1 w-5 h-5 text-indigo-600 rounded"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Network className="w-4 h-4 text-indigo-600" />
+                            <span className="font-semibold text-gray-900">思维导图</span>
+                          </div>
+                          <p className="text-xs text-gray-600">可视化知识结构，理清脉络</p>
+                        </div>
+                      </label>
+
+                      {/* PPT 演示 */}
+                      <label className="flex items-start gap-3 p-4 bg-white border-2 rounded-xl cursor-pointer transition-all hover:border-orange-300"
+                        style={{
+                          borderColor: selectedSyncItems.includes('ppt') ? '#f97316' : '#e5e7eb'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedSyncItems.includes('ppt')}
+                          onChange={() => toggleSyncItem('ppt')}
+                          className="mt-1 w-5 h-5 text-orange-600 rounded"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Presentation className="w-4 h-4 text-orange-600" />
+                            <span className="font-semibold text-gray-900">PPT 演示</span>
+                          </div>
+                          <p className="text-xs text-gray-600">幻灯片展示，适合课堂讲解</p>
                         </div>
                       </label>
                     </div>
