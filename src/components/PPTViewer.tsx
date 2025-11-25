@@ -11,7 +11,6 @@ interface PPTViewerProps {
 export default function PPTViewer({ cards, title, onBack }: PPTViewerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handlePrevious = () => {
     setCurrentSlide((prev) => (prev > 0 ? prev - 1 : cards.length));
@@ -24,10 +23,8 @@ export default function PPTViewer({ cards, title, onBack }: PPTViewerProps) {
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
     } else {
       document.exitFullscreen();
-      setIsFullscreen(false);
     }
   };
 
@@ -48,8 +45,23 @@ export default function PPTViewer({ cards, title, onBack }: PPTViewerProps) {
     };
   });
 
+  // 定义幻灯片类型
+  type CoverSlide = {
+    type: 'cover';
+    content: string;
+    subtitle: string;
+  };
+
+  type ContentSlide = {
+    type: 'content';
+    term: string;
+    definition: string;
+  };
+
+  type Slide = CoverSlide | ContentSlide;
+
   // 生成幻灯片内容
-  const slides = [
+  const slides: Slide[] = [
     // 封面
     {
       type: 'cover',
@@ -57,7 +69,7 @@ export default function PPTViewer({ cards, title, onBack }: PPTViewerProps) {
       subtitle: `共 ${cards.length} 个知识点`,
     },
     // 卡片内容
-    ...cards.map((card) => ({
+    ...cards.map((card): ContentSlide => ({
       type: 'content',
       term: card.term,
       definition: card.definition,
@@ -113,10 +125,10 @@ export default function PPTViewer({ cards, title, onBack }: PPTViewerProps) {
             <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600 text-white p-12">
               <div className="text-center space-y-6">
                 <h1 className="text-5xl font-bold mb-4 animate-fade-in">
-                  {currentSlideData.content}
+                  {(currentSlideData as CoverSlide).content}
                 </h1>
                 <p className="text-2xl text-white/90 animate-fade-in">
-                  {currentSlideData.subtitle}
+                  {(currentSlideData as CoverSlide).subtitle}
                 </p>
                 <div className="mt-12 text-lg text-white/80 animate-fade-in">
                   按空格键或点击箭头开始学习 →
@@ -138,7 +150,7 @@ export default function PPTViewer({ cards, title, onBack }: PPTViewerProps) {
                     术语
                   </div>
                   <h2 className="text-4xl font-bold text-gray-900 mb-8">
-                    {currentSlideData.term}
+                    {(currentSlideData as ContentSlide).term}
                   </h2>
                 </div>
 
@@ -146,7 +158,7 @@ export default function PPTViewer({ cards, title, onBack }: PPTViewerProps) {
                 <div className="bg-white rounded-2xl p-8 shadow-lg border-l-4 border-purple-600">
                   <div className="text-sm text-gray-500 mb-3 font-medium">定义</div>
                   <p className="text-xl text-gray-800 leading-relaxed whitespace-pre-line">
-                    {currentSlideData.definition}
+                    {(currentSlideData as ContentSlide).definition}
                   </p>
                 </div>
               </div>
