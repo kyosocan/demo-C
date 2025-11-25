@@ -1,11 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// GitHub Actions 会通过 VITE_BASE_URL 环境变量自动设置正确的 base URL
-// 本地开发时默认为 '/'
-const base = process.env.VITE_BASE_URL || '/'
-
-console.log('Vite base URL:', base) // 调试日志
+// 根据环境设置 base URL
+// 生产环境使用 /demo-C/，本地开发使用 /
+const base = process.env.NODE_ENV === 'production' ? '/demo-C/' : '/'
 
 export default defineConfig({
   base: base,
@@ -13,10 +11,6 @@ export default defineConfig({
   server: {
     host: '0.0.0.0', // 允许外部访问
     port: 5173,
-  },
-  build: {
-    // 确保构建输出使用正确的路径
-    assetsDir: 'assets',
   },
 })
 
