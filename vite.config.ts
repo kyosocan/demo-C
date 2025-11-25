@@ -5,12 +5,18 @@ import react from '@vitejs/plugin-react'
 // 本地开发时默认为 '/'
 const base = process.env.VITE_BASE_URL || '/'
 
+console.log('Vite base URL:', base) // 调试日志
+
 export default defineConfig({
   base: base,
   plugins: [react()],
   server: {
     host: '0.0.0.0', // 允许外部访问
     port: 5173,
+  },
+  build: {
+    // 确保构建输出使用正确的路径
+    assetsDir: 'assets',
   },
 })
 
