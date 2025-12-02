@@ -117,7 +117,7 @@ export default function MaterialCard({ content, onClick }: MaterialCardProps) {
                 src={content.authorAvatar.startsWith('http') ? content.authorAvatar : encodeURI(content.authorAvatar)}
                 alt={content.author}
                 className="w-5 h-5 rounded-full object-cover flex-shrink-0"
-                onError={(e) => {
+                onError={(_e) => {
                   console.error('头像加载失败:', content.authorAvatar);
                   setAvatarError(true);
                 }}

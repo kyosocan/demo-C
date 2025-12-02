@@ -29,6 +29,8 @@ interface FileItem {
   type: 'folder' | 'pdf' | 'file';
   date: string;
   size?: string;
+  title?: string;
+  cover?: string;
 }
 
 function App() {
@@ -54,7 +56,6 @@ function App() {
   const [showSelectIllustrationPage, setShowSelectIllustrationPage] = useState(false);
   const [showEditPostPage, setShowEditPostPage] = useState(false);
   const [postText, setPostText] = useState('');
-  const [selectedCard, setSelectedCard] = useState(1);
   const [editingPost, setEditingPost] = useState<CommunityContent | null>(null);
   const [editingFolders, setEditingFolders] = useState<Array<{ name: string; files: FileItem[] }>>([]);
   const currentUserId = '我在魔都汇'; // 当前登录用户
@@ -95,7 +96,7 @@ function App() {
 
   // 筛选内容 - 广场页显示热门内容
   const plazaContents = contents
-    .filter((content) => {
+    .filter(() => {
       if (currentSubTab === 'hot') {
         // 热门：按下载量或评论数排序
         return true;
@@ -122,7 +123,6 @@ function App() {
         <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg">
           <EditPostPage
             text={postText}
-            selectedCard={selectedCard}
             initialTitle={editingPost?.type === 'material' ? (editingPost as MaterialContent).title : editingPost?.type === 'question' ? (editingPost as QuestionContent).title : editingPost?.type === 'studyset' ? (editingPost as StudySetContent).title : ''}
             initialBody={editingPost?.type === 'material' ? (editingPost as MaterialContent).description || '' : editingPost?.type === 'question' ? (editingPost as QuestionContent).description || '' : editingPost?.type === 'studyset' ? (editingPost as StudySetContent).description || '' : ''}
             initialFolders={editingFolders}
@@ -131,7 +131,6 @@ function App() {
               setEditingPost(null);
               setEditingFolders([]);
               setPostText('');
-              setSelectedCard(1);
             }}
             onPublish={(data) => {
               console.log('发布笔记', editingPost, data);
@@ -167,7 +166,6 @@ function App() {
               setEditingPost(null);
               setEditingFolders([]);
               setPostText('');
-              setSelectedCard(1);
             }}
             onSaveDraft={() => {
               console.log('保存草稿');
@@ -189,8 +187,7 @@ function App() {
           <SelectIllustrationPage
             text={postText}
             onBack={() => setShowSelectIllustrationPage(false)}
-            onNext={(card) => {
-              setSelectedCard(card);
+            onNext={(_card) => {
               setShowSelectIllustrationPage(false);
               setShowEditPostPage(true);
             }}
@@ -245,12 +242,11 @@ function App() {
               setShowProfilePage(false);
               setShowMessageCenter(true);
             }}
-            onEditPost={(postId) => {
+            onEditPost={() => {
               setShowProfilePage(false);
               setShowEditPostPage(true);
               // 可以根据postId加载对应的帖子内容
               setPostText('我的帖子内容');
-              setSelectedCard(1);
             }}
             onPostClick={(postId) => {
               // 根据postId在contents中查找对应的内容
@@ -292,32 +288,18 @@ function App() {
     setEditingPost(post);
     
     // 根据帖子类型设置编辑内容
-    let initialTitle = '';
-    let initialBody = '';
-    
     if (post.type === 'material') {
       const material = post as MaterialContent;
-      initialTitle = material.title;
-      initialBody = material.description || '';
       // 获取文件列表并转换为文件夹格式
       const files = getFilesForPost(post);
       const folders = convertFilesToFolders(files, material.title);
       setEditingFolders(folders);
-    } else if (post.type === 'question') {
-      const question = post as QuestionContent;
-      initialTitle = question.title;
-      initialBody = question.description || '';
-      setEditingFolders([]);
-    } else if (post.type === 'studyset') {
-      const studySet = post as StudySetContent;
-      initialTitle = studySet.title;
-      initialBody = studySet.description || '';
+    } else {
       setEditingFolders([]);
     }
     
-    setPostText(initialTitle);
+    setPostText(post.title);
     setShowEditPostPage(true);
-    setSelectedCard(1);
   };
 
   // 处理删除帖子
@@ -339,8 +321,6 @@ function App() {
   const handleShareToWeChat = (post: CommunityContent) => {
     // 生成分享链接
     const shareUrl = `${window.location.origin}/post/${post.id}`;
-    const shareTitle = post.title;
-    const shareDesc = post.type === 'question' ? (post as QuestionContent).description : post.title;
     
     // 复制链接到剪贴板
     if (navigator.clipboard) {

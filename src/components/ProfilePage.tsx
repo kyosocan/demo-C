@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, Bell, Edit, Search, Lock, FileText, Heart, Star, MoreVertical, Share2, Trash2 } from 'lucide-react';
+import { ArrowLeft, Bell, Edit, Search, FileText, Heart, Star, MoreVertical, Share2, Trash2 } from 'lucide-react';
 import StatusBar from './StatusBar';
 import PlazaContentCard from './PlazaContentCard';
 
@@ -59,6 +59,7 @@ const myLiked = [
     id: 'liked-1',
     title: '初中文学常识汇总',
     author: '语文老师',
+    authorAvatar: '/image/avatar/清华徐爸爸.png',
     likes: 345,
     cover: '/image/初中文学常识汇总.jpg',
     learningCount: 2345,

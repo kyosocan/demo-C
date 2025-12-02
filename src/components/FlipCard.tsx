@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { FlashCard } from '../types';
-import { RotateCw } from 'lucide-react';
 
 interface FlipCardProps {
   card: FlashCard;

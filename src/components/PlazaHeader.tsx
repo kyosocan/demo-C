@@ -17,15 +17,15 @@ interface PlazaHeaderProps {
 
 export default function PlazaHeader({
   currentTab = 'plaza',
-  currentSubTab = 'all',
-  onTabChange,
-  onSubTabChange,
+  currentSubTab: _currentSubTab = 'all',
+  onTabChange: _onTabChange,
+  onSubTabChange: _onSubTabChange,
   onSearchClick,
   onFilterClick,
   onProfileClick,
   showSubNav = true, // 默认显示二级导航
-  selectedGrade = '全部',
-  selectedSubject = '全部',
+  selectedGrade: _selectedGrade = '全部',
+  selectedSubject: _selectedSubject = '全部',
 }: PlazaHeaderProps) {
   const [selectedCategory, setSelectedCategory] = useState('推荐');
 

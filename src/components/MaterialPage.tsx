@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { MaterialContent } from '../types';
-import { ChevronDown, Search } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import BottomNav from './BottomNav';
 import FloatingActionButton from './FloatingActionButton';
 import MaterialCard from './MaterialCard';
@@ -23,8 +23,8 @@ export default function MaterialPage({
   onQuestionClick,
   onTabChange,
 }: MaterialPageProps) {
-  const [gradeFilter, setGradeFilter] = useState('三年级');
-  const [subjectFilter, setSubjectFilter] = useState('数学');
+  const [gradeFilter, _setGradeFilter] = useState('三年级');
+  const [subjectFilter, _setSubjectFilter] = useState('数学');
   const [categoryFilter, setCategoryFilter] = useState('全部');
 
   // 筛选内容

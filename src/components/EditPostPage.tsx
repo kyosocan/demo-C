@@ -18,7 +18,6 @@ interface FolderData {
 
 interface EditPostPageProps {
   text?: string;
-  selectedCard?: number;
   initialTitle?: string;
   initialBody?: string;
   initialFolders?: FolderData[];
@@ -29,7 +28,6 @@ interface EditPostPageProps {
 
 export default function EditPostPage({
   text = '',
-  selectedCard = 1,
   initialTitle = '',
   initialBody = '',
   initialFolders = [],
@@ -288,7 +286,7 @@ export default function EditPostPage({
                         key={index}
                         className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg"
                       >
-                        <span className="text-sm text-gray-700 flex-1 truncate">{file}</span>
+                        <span className="text-sm text-gray-700 flex-1 truncate">{file.title || file.name}</span>
                         <button
                           onClick={() => {
                             setFiles(files.filter((_, i) => i !== index));

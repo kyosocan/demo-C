@@ -21,7 +21,7 @@ const mockAnswers: Array<{
   },
 ];
 
-export default function QuestionCard({ content, onClick }: QuestionCardProps) {
+export default function QuestionCard({ content, onClick: _onClick }: QuestionCardProps) {
   const hashtag = content.tags.find(tag => tag.name.startsWith('#'));
   const hasAnswer = Math.random() > 0.5; // 随机显示答案
 

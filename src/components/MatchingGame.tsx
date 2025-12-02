@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FlashCard } from '../types';
-import { Check, Trophy, Timer, RotateCcw } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 
 interface MatchingGameProps {
   cards: FlashCard[];
@@ -125,21 +125,6 @@ export default function MatchingGame({ cards, onBack }: MatchingGameProps) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getCardStyle = (card: GameCard) => {
-    const isSelected = selectedCards.find((c) => c.id === card.id);
-    
-    if (card.isMatched) {
-      return 'bg-green-100 border-green-400 text-green-800 opacity-75';
-    }
-    if (isSelected) {
-      return card.type === 'term'
-        ? 'bg-blue-100 border-blue-400 text-blue-900 scale-95'
-        : 'bg-purple-100 border-purple-400 text-purple-900 scale-95';
-    }
-    return card.type === 'term'
-      ? 'bg-white border-blue-200 hover:border-blue-400 hover:shadow-md'
-      : 'bg-white border-purple-200 hover:border-purple-400 hover:shadow-md';
-  };
 
   const currentStep = matchedCount + 1;
   const totalSteps = cards.slice(0, 6).length;

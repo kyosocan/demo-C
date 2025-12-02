@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ThumbsUp, User, Image as ImageIcon } from 'lucide-react';
+import { ThumbsUp, Image as ImageIcon } from 'lucide-react';
 
 interface PlazaContentCardProps {
   title: string;
@@ -22,7 +22,7 @@ export default function PlazaContentCard({
   date,
   likes,
   cover,
-  learningCount,
+  learningCount: _learningCount,
   onClick,
   variant = 'default',
 }: PlazaContentCardProps) {
@@ -51,7 +51,7 @@ export default function PlazaContentCard({
               src={encodeURI(cover)}
               alt={title}
               className="w-full h-full object-cover"
-              onError={(e) => {
+              onError={(_e) => {
                 console.error('图片加载失败:', cover);
                 setCoverError(true);
               }}
@@ -83,7 +83,7 @@ export default function PlazaContentCard({
                   src={encodeURI(authorAvatar)}
                   alt={author}
                   className="w-3.75 h-3.75 rounded-full object-cover flex-shrink-0"
-                  onError={(e) => {
+                  onError={(_e) => {
                     console.error('头像加载失败:', authorAvatar);
                     setAvatarError(true);
                   }}
@@ -123,7 +123,7 @@ export default function PlazaContentCard({
               src={encodeURI(cover)}
               alt={title}
               className="w-full h-full object-cover"
-              onError={(e) => {
+              onError={(_e) => {
                 console.error('图片加载失败:', cover);
                 setCoverError(true);
               }}
@@ -155,7 +155,7 @@ export default function PlazaContentCard({
                   src={encodeURI(authorAvatar)}
                   alt={author}
                   className="w-3.75 h-3.75 rounded-full object-cover flex-shrink-0"
-                  onError={(e) => {
+                  onError={(_e) => {
                     console.error('头像加载失败:', authorAvatar);
                     setAvatarError(true);
                   }}

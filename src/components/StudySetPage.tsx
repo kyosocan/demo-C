@@ -22,8 +22,8 @@ export default function StudySetPage({
   onQuestionClick,
   onTabChange,
 }: StudySetPageProps) {
-  const [subjectFilter, setSubjectFilter] = useState('学科');
-  const [typeFilter, setTypeFilter] = useState('类型');
+  const [subjectFilter, _setSubjectFilter] = useState('学科');
+  const [typeFilter, _setTypeFilter] = useState('类型');
 
   // 获取卡片背景色
   const getCardBgColor = (index: number) => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FlashCard } from '../types';
-import { Check, X, Trophy, ChevronRight, RotateCcw } from 'lucide-react';
+import { Check, X, Trophy } from 'lucide-react';
 
 interface QuizGameProps {
   cards: FlashCard[];
@@ -145,7 +145,6 @@ export default function QuizGame({ cards, onBack }: QuizGameProps) {
           <div className="space-y-3">
             {currentQuestion.options.map((option, index) => {
               const isCorrect = option === currentQuestion.correctAnswer;
-              const isSelected = option === selectedAnswer;
 
               return (
                 <button

@@ -63,7 +63,6 @@ export default function QuestionDetail({
   const [commentCount] = useState(12);
   const [isFavorited, setIsFavorited] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  const [coverError, setCoverError] = useState(false);
   const [showMenuDrawer, setShowMenuDrawer] = useState(false);
 
   // 判断是否是自己的帖子
@@ -115,7 +114,7 @@ export default function QuestionDetail({
             src={content.cover.startsWith('http') ? content.cover : encodeURI(content.cover)}
             alt={content.title}
             className="w-full h-full object-cover"
-            onError={() => setCoverError(true)}
+            onError={() => {}}
           />
         </div>
       )}

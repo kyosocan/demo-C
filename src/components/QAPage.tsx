@@ -16,13 +16,13 @@ interface QAPageProps {
 
 export default function QAPage({
   contents,
-  onQuestionClick,
+  onQuestionClick: _onQuestionClick,
   onSearchClick,
   onQuestionSubmit,
   onTabChange,
 }: QAPageProps) {
-  const [subjectFilter, setSubjectFilter] = useState('学科');
-  const [typeFilter, setTypeFilter] = useState('类型');
+  const [subjectFilter, _setSubjectFilter] = useState('学科');
+  const [typeFilter, _setTypeFilter] = useState('类型');
 
   return (
     <div className="min-h-screen bg-white">

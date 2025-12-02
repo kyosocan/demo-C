@@ -6,7 +6,6 @@ import {
   Users,
   ChevronLeft,
   ChevronRight,
-  Shuffle,
   Star,
   Gamepad2,
   Brain,
@@ -55,8 +54,8 @@ export default function StudySetDetail({
   
   // 闪卡相关状态
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [shuffled, setShuffled] = useState(false);
-  const [cards, setCards] = useState(content.cards);
+  // const [shuffled, setShuffled] = useState(false);
+  const [cards, _setCards] = useState(content.cards);
 
   const handleSyncToDevice = async () => {
     setIsSyncing(true);
@@ -118,18 +117,18 @@ export default function StudySetDetail({
       setCurrentCardIndex((prev) => (prev < cards.length - 1 ? prev + 1 : 0));
     };
 
-    const handleShuffle = () => {
-      const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
-      setCards(shuffledCards);
-      setShuffled(true);
-      setCurrentCardIndex(0);
-    };
+    // const handleShuffle = () => {
+    //   const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
+    //   setCards(shuffledCards);
+    //   setShuffled(true);
+    //   setCurrentCardIndex(0);
+    // };
 
-    const handleReset = () => {
-      setCards(content.cards);
-      setShuffled(false);
-      setCurrentCardIndex(0);
-    };
+    // const handleReset = () => {
+    //   setCards(content.cards);
+    //   setShuffled(false);
+    //   setCurrentCardIndex(0);
+    // };
 
     return (
       <div className="min-h-screen bg-white">
@@ -351,7 +350,7 @@ export default function StudySetDetail({
                 所有卡片 ({content.cardCount})
               </h4>
               <div className="space-y-3">
-                {content.cards.slice(0, 4).map((card, index) => (
+                {content.cards.slice(0, 4).map((card) => (
                   <div
                     key={card.id}
                     className="bg-white rounded-lg p-3 border border-gray-100"
