@@ -13,14 +13,13 @@ export default function ContentCard({ content, onClick }: ContentCardProps) {
     >
       {/* 封面图片 */}
       <div className="relative w-full aspect-[3/4] overflow-hidden bg-gray-200">
-        <img
-          src={content.cover || 'https://via.placeholder.com/400x500'}
-          alt={content.title}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x500?text=No+Image';
-          }}
-        />
+        {content.cover && (
+          <img
+            src={content.cover}
+            alt={content.title}
+            className="w-full h-full object-cover"
+          />
+        )}
         {/* 学科标签 */}
         <div className="absolute top-2 right-2">
           {(() => {
@@ -92,9 +91,6 @@ export default function ContentCard({ content, onClick }: ContentCardProps) {
                 src={content.authorAvatar}
                 alt={content.author}
                 className="w-5 h-5 rounded-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
               />
             )}
             <span className="text-xs text-gray-400 truncate max-w-[50px]">{content.author}</span>

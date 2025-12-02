@@ -16,27 +16,42 @@ import {
   X,
   Network,
   Presentation,
+  Share2,
+  MoreVertical,
 } from 'lucide-react';
 import FlipCard from './FlipCard';
 import MatchingGame from './MatchingGame';
 import QuizGame from './QuizGame';
 import MindMap from './MindMap';
 import PPTViewer from './PPTViewer';
+import PostMenuDrawer from './PostMenuDrawer';
 
 interface StudySetDetailProps {
   content: StudySetContent;
   onBack: () => void;
+  onEdit?: () => void;
+  onShare?: () => void;
+  onDelete?: () => void;
+  currentUserId?: string; // 当前登录用户ID
 }
 
 export default function StudySetDetail({
   content,
   onBack,
+  onEdit,
+  onShare,
+  onDelete,
+  currentUserId = '我在魔都汇', // 默认当前用户
 }: StudySetDetailProps) {
   const [gameMode, setGameMode] = useState<'flashcard' | 'matching' | 'quiz' | 'mindmap' | 'ppt' | null>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncSuccess, setSyncSuccess] = useState(false);
   const [selectedSyncItems, setSelectedSyncItems] = useState<string[]>(['flashcard', 'matching', 'quiz', 'mindmap', 'ppt']);
+  const [showMenuDrawer, setShowMenuDrawer] = useState(false);
+
+  // 判断是否是自己的帖子
+  const isMyPost = content.author === currentUserId;
   
   // 闪卡相关状态
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -117,7 +132,7 @@ export default function StudySetDetail({
     };
 
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50">
+      <div className="min-h-screen bg-white">
         <div className="bg-white shadow-sm sticky top-0 z-10 px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <button
@@ -127,30 +142,31 @@ export default function StudySetDetail({
               ← 返回
             </button>
             <h2 className="text-lg font-bold text-gray-900">闪卡学习</h2>
-            <button
-              onClick={shuffled ? handleReset : handleShuffle}
-              className={`p-2 rounded-full transition-colors ${
-                shuffled ? 'bg-purple-100' : 'hover:bg-gray-100'
-              }`}
-            >
-              {shuffled ? <Star className="w-5 h-5 text-purple-600" /> : <Shuffle className="w-5 h-5 text-gray-600" />}
-            </button>
+            <div className="w-10"></div>
           </div>
           
-          <div className="text-sm font-medium text-gray-700 text-center">
-            {currentCardIndex + 1} / {cards.length}
+          {/* 进度指示 */}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-600">{currentCardIndex + 1}/{cards.length}</span>
+            <span className="text-sm text-gray-600">{Math.round(((currentCardIndex + 1) / cards.length) * 100)}%</span>
+          </div>
+          <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#FB2628] transition-all duration-300"
+              style={{ width: `${((currentCardIndex + 1) / cards.length) * 100}%` }}
+            />
           </div>
         </div>
 
         <div className="px-4 py-6">
-          <div className="h-[400px] mb-6">
+          <div className="h-[500px] mb-6">
             <FlipCard card={cards[currentCardIndex]} />
           </div>
 
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={handlePrevious}
-              className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-all active:scale-95"
+              className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full hover:bg-gray-200 transition-all active:scale-95"
             >
               <ChevronLeft className="w-6 h-6 text-gray-700" />
             </button>
@@ -159,139 +175,127 @@ export default function StudySetDetail({
                 <button
                   key={index}
                   onClick={() => setCurrentCardIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
+                  className={`h-2 rounded-full transition-all ${
                     index === currentCardIndex
-                      ? 'bg-blue-600 w-6'
-                      : 'bg-gray-300 hover:bg-gray-400'
+                      ? 'bg-[#FB2628] w-6'
+                      : 'bg-gray-300 w-2 hover:bg-gray-400'
                   }`}
                 />
               ))}
             </div>
             <button
               onClick={handleNext}
-              className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition-all active:scale-95"
+              className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full hover:bg-gray-200 transition-all active:scale-95"
             >
               <ChevronRight className="w-6 h-6 text-gray-700" />
             </button>
-          </div>
-
-          <div className="mt-8 text-center text-sm text-gray-500">
-            💡 提示：点击卡片可以翻转查看答案
           </div>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 头部 */}
-      <div className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <button
-            onClick={onBack}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="flex-1">
-            <h1 className="font-semibold text-lg text-gray-900 line-clamp-1">
-              {content.title}
-            </h1>
-            <div className="flex items-center gap-3 mt-1 text-sm text-gray-600">
-              <div className="flex items-center gap-1">
-                <BookOpen className="w-3.5 h-3.5" />
-                <span>{content.cardCount} 张卡片</span>
+      return (
+        <div className="min-h-screen bg-white">
+          {/* 头部 */}
+          <div className="bg-white shadow-sm sticky top-0 z-10">
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between mb-3">
+                <button
+                  onClick={onBack}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+                <div className="flex items-center gap-3">
+                  {isMyPost ? (
+                    <button 
+                      onClick={() => setShowMenuDrawer(true)}
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                      <MoreVertical className="w-5 h-5" />
+                    </button>
+                  ) : (
+                    <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                      <Share2 className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Users className="w-3.5 h-3.5" />
-                <span>{content.studyCount} 次学习</span>
+              <h1 className="text-xl font-bold text-gray-900 mb-2">
+                {content.title}
+              </h1>
+              <div className="flex items-center gap-4 mb-3">
+                <div className="flex items-center gap-1">
+                  <BookOpen className="w-4 h-4 text-[#FB2628]" />
+                  <span className="text-sm text-gray-600">{content.cardCount}条词语</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Users className="w-4 h-4 text-[#FB2628]" />
+                  <span className="text-sm text-gray-600">{content.studyCount || 420}人正在学</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {content.authorAvatar && (
+                    <img
+                      src={content.authorAvatar}
+                      alt={content.author}
+                      className="w-6 h-6 rounded-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  )}
+                  <span className="text-sm text-gray-700">{content.author}</span>
+                </div>
+                <button className="px-4 py-1.5 bg-[#FB2628] text-white text-sm rounded-full">
+                  加入学习集
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* 学习方式列表 */}
-      <div className="px-4 py-6 space-y-4">
-        {/* 家长提示 */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <p className="text-sm text-blue-900">
-            <span className="font-semibold">💡 家长提示：</span>选择适合孩子的学习方式，同步到学习机让孩子自主学习
-          </p>
-        </div>
+          {/* 学习方式列表 */}
+          <div className="px-4 py-6">
+            <h3 className="text-base font-bold text-gray-900 mb-4">学习方式</h3>
+            <div className="flex items-center gap-3 mb-6">
+              {/* 闪卡学习 */}
+              <button
+                onClick={() => setGameMode('flashcard')}
+                className="flex-1 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all active:scale-[0.98] text-center border border-gray-100"
+              >
+                <div className="w-12 h-12 bg-[#FB2628] rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900 mb-1">闪卡</div>
+                <div className="text-xs text-gray-500">反转学习</div>
+              </button>
 
-        {/* 闪卡学习 */}
-        <button
-          onClick={() => setGameMode('flashcard')}
-          className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all active:scale-[0.98] text-left border border-gray-100"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Zap className="w-7 h-7 text-white" />
-            </div>
-            <div className="flex-1">
-              <h4 className="text-lg font-bold text-gray-900 mb-1">闪卡学习</h4>
-              <p className="text-sm text-gray-600 mb-2">
-                翻转卡片学习，逐个掌握知识点
-              </p>
-              <div className="flex items-center gap-3 text-xs text-gray-500">
-                <span>🔄 可翻转</span>
-                <span>🔀 可打乱</span>
-                <span>📖 {content.cardCount} 张卡片</span>
-              </div>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 mt-2" />
-          </div>
-        </button>
+              {/* 配对游戏 */}
+              <button
+                onClick={() => setGameMode('matching')}
+                className="flex-1 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all active:scale-[0.98] text-center border border-gray-100"
+              >
+                <div className="w-12 h-12 bg-[#FB2628] rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Gamepad2 className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900 mb-1">配对</div>
+                <div className="text-xs text-gray-500">拖拽匹配</div>
+              </button>
 
-        {/* 配对游戏 */}
-        <button
-          onClick={() => setGameMode('matching')}
-          className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all active:scale-[0.98] text-left border border-gray-100"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Gamepad2 className="w-7 h-7 text-white" />
+              {/* 小测验 */}
+              <button
+                onClick={() => setGameMode('quiz')}
+                className="flex-1 bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all active:scale-[0.98] text-center border border-gray-100"
+              >
+                <div className="w-12 h-12 bg-[#FB2628] rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900 mb-1">测验</div>
+                <div className="text-xs text-gray-500">自我检测</div>
+              </button>
             </div>
-            <div className="flex-1">
-              <h4 className="text-lg font-bold text-gray-900 mb-1">配对游戏</h4>
-              <p className="text-sm text-gray-600 mb-2">
-                将术语与定义配对，考验记忆力
-              </p>
-              <div className="flex items-center gap-3 text-xs text-gray-500">
-                <span>⏱️ 计时挑战</span>
-                <span>🎯 准确率统计</span>
-                <span>🎮 趣味互动</span>
-              </div>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 mt-2" />
-          </div>
-        </button>
-
-        {/* 小测验 */}
-        <button
-          onClick={() => setGameMode('quiz')}
-          className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all active:scale-[0.98] text-left border border-gray-100"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Brain className="w-7 h-7 text-white" />
-            </div>
-            <div className="flex-1">
-              <h4 className="text-lg font-bold text-gray-900 mb-1">小测验</h4>
-              <p className="text-sm text-gray-600 mb-2">
-                选择正确答案，检验学习成果
-              </p>
-              <div className="flex items-center gap-3 text-xs text-gray-500">
-                <span>📝 选择题</span>
-                <span>📊 成绩分析</span>
-                <span>🏆 即时反馈</span>
-              </div>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 mt-2" />
-          </div>
-        </button>
 
         {/* 思维导图 */}
         <button
@@ -341,47 +345,35 @@ export default function StudySetDetail({
           </div>
         </button>
 
-        {/* 卡片列表 */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h4 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-purple-600" />
-            全部卡片 ({content.cardCount})
-          </h4>
-          <div className="space-y-3">
-            {content.cards.slice(0, 3).map((card, index) => (
-              <div
-                key={card.id}
-                className="bg-gray-50 rounded-xl p-4"
-              >
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div>
-                      <div className="text-xs text-gray-500 mb-0.5">术语</div>
-                      <div className="text-sm font-semibold text-gray-900">
-                        {card.term}
+            {/* 卡片列表 */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <h4 className="text-base font-bold text-gray-900 mb-4">
+                所有卡片 ({content.cardCount})
+              </h4>
+              <div className="space-y-3">
+                {content.cards.slice(0, 4).map((card, index) => (
+                  <div
+                    key={card.id}
+                    className="bg-white rounded-lg p-3 border border-gray-100"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold text-gray-900 mb-1">
+                          {card.term}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {card.definition}
+                        </div>
                       </div>
-                    </div>
-                    <div className="border-t border-gray-200 pt-2">
-                      <div className="text-xs text-gray-500 mb-0.5">定义</div>
-                      <div className="text-xs text-gray-700 line-clamp-2">
-                        {card.definition}
-                      </div>
+                      <button className="ml-2">
+                        <Star size={18} className="text-gray-300" />
+                      </button>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-            {content.cards.length > 3 && (
-              <div className="text-center py-2 text-sm text-gray-500">
-                还有 {content.cards.length - 3} 张卡片...
-              </div>
-            )}
+            </div>
           </div>
-        </div>
-      </div>
 
       {/* 底部信息 */}
       <div className="px-4 py-6 bg-white border-t border-gray-200 mb-20">
@@ -389,7 +381,7 @@ export default function StudySetDetail({
           <img
             src={
               content.authorAvatar ||
-              `https://api.dicebear.com/7.x/avataaars/svg?seed=${content.author}`
+              content.authorAvatar || '/image/avatar/default.jpg'
             }
             alt={content.author}
             className="w-12 h-12 rounded-full"
@@ -675,6 +667,22 @@ export default function StudySetDetail({
         }
       `}</style>
 
+      {/* 帖子菜单抽屉 */}
+      {isMyPost && (
+        <PostMenuDrawer
+          isOpen={showMenuDrawer}
+          onClose={() => setShowMenuDrawer(false)}
+          onEdit={() => {
+            if (onEdit) onEdit();
+          }}
+          onShare={() => {
+            if (onShare) onShare();
+          }}
+          onDelete={() => {
+            if (onDelete) onDelete();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -85,22 +85,22 @@ export default function QuizGame({ cards, onBack }: QuizGameProps) {
 
   const getOptionStyle = (option: string) => {
     if (!isAnswered) {
-      return 'bg-white border-gray-300 hover:border-purple-400 hover:bg-purple-50';
+      return 'bg-white border-gray-200 hover:border-gray-300';
     }
 
     if (option === currentQuestion.correctAnswer) {
-      return 'bg-green-100 border-green-400 text-green-900';
+      return 'bg-[#FFF5F5] border-[#FB2628]';
     }
 
     if (option === selectedAnswer && option !== currentQuestion.correctAnswer) {
-      return 'bg-red-100 border-red-400 text-red-900';
+      return 'bg-gray-100 border-gray-300';
     }
 
     return 'bg-gray-100 border-gray-300 opacity-50';
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 pb-6">
+    <div className="min-h-screen bg-white pb-6">
       {/* 头部 */}
       <div className="bg-white shadow-sm sticky top-0 z-10 px-4 py-4">
         <div className="flex items-center justify-between mb-4">
@@ -111,30 +111,20 @@ export default function QuizGame({ cards, onBack }: QuizGameProps) {
             ← 返回
           </button>
           <h2 className="text-lg font-bold text-gray-900">小测验</h2>
-          <button
-            onClick={initQuiz}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <RotateCcw className="w-5 h-5 text-gray-600" />
-          </button>
+          <span className="text-sm text-gray-600">{correctCount}答对</span>
         </div>
 
         {/* 进度条 */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">
-              第 {currentQuestionIndex + 1} / {questions.length} 题
-            </span>
-            <span className="font-semibold text-purple-600">
-              {correctCount} 答对
-            </span>
-          </div>
-          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm text-gray-600">
+            {currentQuestionIndex + 1}/{questions.length}
+          </span>
+        </div>
+        <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-[#FB2628] transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
@@ -142,12 +132,12 @@ export default function QuizGame({ cards, onBack }: QuizGameProps) {
       {!isGameComplete ? (
         <div className="px-4 py-6 space-y-6">
           {/* 问题卡片 */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-purple-200">
-            <div className="text-sm text-purple-600 font-medium mb-3">
-              选择正确的定义
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-[#FB2628]">
+            <div className="text-xs text-[#FB2628] font-medium mb-3">
+              选择正确的词语
             </div>
-            <div className="text-xl font-bold text-gray-900">
-              {currentQuestion.card.term}
+            <div className="text-2xl font-bold text-gray-900">
+              {currentQuestion.card.definition}
             </div>
           </div>
 
@@ -166,18 +156,10 @@ export default function QuizGame({ cards, onBack }: QuizGameProps) {
                     option
                   )}`}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold">
-                      {String.fromCharCode(65 + index)}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm leading-relaxed">{option}</p>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-900">{option}</span>
                     {isAnswered && isCorrect && (
-                      <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    )}
-                    {isAnswered && isSelected && !isCorrect && (
-                      <X className="w-5 h-5 text-red-600 flex-shrink-0" />
+                      <Check className="w-5 h-5 text-[#FB2628] flex-shrink-0" />
                     )}
                   </div>
                 </button>
@@ -211,13 +193,10 @@ export default function QuizGame({ cards, onBack }: QuizGameProps) {
 
               <button
                 onClick={handleNext}
-                className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-[#FB2628] text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 {currentQuestionIndex < questions.length - 1 ? (
-                  <>
-                    <span>下一题</span>
-                    <ChevronRight className="w-5 h-5" />
-                  </>
+                  <span>下一题</span>
                 ) : (
                   <span>查看结果</span>
                 )}

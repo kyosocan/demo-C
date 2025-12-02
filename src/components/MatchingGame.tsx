@@ -141,8 +141,12 @@ export default function MatchingGame({ cards, onBack }: MatchingGameProps) {
       : 'bg-white border-purple-200 hover:border-purple-400 hover:shadow-md';
   };
 
+  const currentStep = matchedCount + 1;
+  const totalSteps = cards.slice(0, 6).length;
+  const progress = (currentStep / totalSteps) * 100;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 pb-6">
+    <div className="min-h-screen bg-gray-50 pb-6">
       {/* 头部 */}
       <div className="bg-white shadow-sm sticky top-0 z-10 px-4 py-4">
         <div className="flex items-center justify-between mb-4">
@@ -153,59 +157,51 @@ export default function MatchingGame({ cards, onBack }: MatchingGameProps) {
             ← 返回
           </button>
           <h2 className="text-lg font-bold text-gray-900">配对游戏</h2>
-          <button
-            onClick={initGame}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <RotateCcw className="w-5 h-5 text-gray-600" />
-          </button>
+          <div className="w-10"></div>
         </div>
 
-        {/* 游戏统计 */}
-        <div className="flex items-center justify-around bg-gray-50 rounded-xl p-3">
-          <div className="flex items-center gap-2">
-            <Timer className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-gray-900">
-              {formatTime(timeElapsed)}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Check className="w-4 h-4 text-green-600" />
-            <span className="text-sm font-medium text-gray-900">
-              {matchedCount}/{cards.slice(0, 6).length}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">尝试:</span>
-            <span className="text-sm font-medium text-gray-900">{attempts}</span>
-          </div>
+        {/* 进度指示 */}
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm text-gray-600">{currentStep}/{totalSteps}</span>
+          <span className="text-sm text-gray-600">{Math.round(progress)}%</span>
+        </div>
+        <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-[#FB2628] transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
       {/* 游戏区域 */}
       <div className="px-4 py-6">
         {/* 说明 */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-          <p className="text-sm text-blue-900">
-            💡 点击卡片，将<span className="font-semibold text-blue-600">术语</span>与对应的
-            <span className="font-semibold text-purple-600">定义</span>配对
-          </p>
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-1">点击配对</h3>
+          <p className="text-sm text-gray-600">选择匹配的词语和定义</p>
         </div>
 
         {/* 卡片网格 */}
         <div className="grid grid-cols-2 gap-3">
-          {gameCards.map((card) => (
-            <button
-              key={card.id}
-              onClick={() => handleCardClick(card)}
-              disabled={card.isMatched}
-              className={`p-4 rounded-xl border-2 transition-all min-h-[120px] flex items-center justify-center text-center text-sm font-medium disabled:cursor-not-allowed ${getCardStyle(
-                card
-              )}`}
-            >
-              <span className="line-clamp-4">{card.content}</span>
-            </button>
-          ))}
+          {gameCards.map((card) => {
+            const isSelected = selectedCards.find((c) => c.id === card.id);
+            return (
+              <button
+                key={card.id}
+                onClick={() => handleCardClick(card)}
+                disabled={card.isMatched}
+                className={`p-4 rounded-xl border-2 transition-all min-h-[100px] flex items-center justify-center text-center text-sm font-medium disabled:cursor-not-allowed ${
+                  card.isMatched
+                    ? 'bg-gray-100 border-gray-300 opacity-50'
+                    : isSelected
+                    ? 'bg-[#FFF5F5] border-[#FB2628]'
+                    : 'bg-white border-gray-200'
+                }`}
+              >
+                <span className="line-clamp-3">{card.content}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

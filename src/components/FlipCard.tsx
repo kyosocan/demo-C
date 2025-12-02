@@ -23,31 +23,36 @@ export default function FlipCard({ card }: FlipCardProps) {
       >
         {/* 正面 - 术语 */}
         <div
-          className="absolute inset-0 backface-hidden bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl shadow-xl border-2 border-blue-200 p-8 flex flex-col items-center justify-center"
+          className="absolute inset-0 backface-hidden bg-[#FFF5F5] rounded-2xl shadow-lg border border-gray-200 p-8 flex flex-col items-center justify-center"
           style={{ backfaceVisibility: 'hidden' }}
         >
+          <div className="absolute top-4 right-4">
+            <span className="px-2 py-1 bg-[#FB2628] text-white text-xs rounded">问题</span>
+          </div>
           <div className="text-center">
-            <div className="text-sm text-gray-500 mb-4 font-medium">术语</div>
-            <div className="text-2xl font-bold text-gray-900 mb-6">
+            <div className="text-xs text-gray-500 mb-2">词语</div>
+            <div className="text-3xl font-bold text-gray-900">
               {card.term}
             </div>
           </div>
-          <div className="absolute bottom-6 flex items-center gap-2 text-sm text-gray-500">
-            <RotateCw className="w-4 h-4" />
-            <span>点击翻转</span>
+          <div className="absolute bottom-6 text-xs text-gray-500">
+            点击翻转查看答案
           </div>
         </div>
 
         {/* 背面 - 定义 */}
         <div
-          className="absolute inset-0 backface-hidden bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-xl border-2 border-purple-200 p-8 flex flex-col items-center justify-center"
+          className="absolute inset-0 backface-hidden bg-[#FFF5F5] rounded-2xl shadow-lg border border-gray-200 p-8 flex flex-col items-center justify-center"
           style={{
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',
           }}
         >
+          <div className="absolute top-4 right-4">
+            <span className="px-2 py-1 bg-[#FB2628] text-white text-xs rounded">答案</span>
+          </div>
           <div className="text-center">
-            <div className="text-sm text-gray-500 mb-4 font-medium">定义</div>
+            <div className="text-xs text-gray-500 mb-2">定义</div>
             <div className="text-xl text-gray-900 leading-relaxed">
               {card.definition}
             </div>
@@ -59,9 +64,8 @@ export default function FlipCard({ card }: FlipCardProps) {
               />
             )}
           </div>
-          <div className="absolute bottom-6 flex items-center gap-2 text-sm text-gray-500">
-            <RotateCw className="w-4 h-4" />
-            <span>点击翻转</span>
+          <div className="absolute bottom-6 text-xs text-gray-500">
+            点击翻转查看问题
           </div>
         </div>
       </div>

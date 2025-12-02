@@ -37,7 +37,7 @@ export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
       id: Date.now().toString(),
       type: 'material',
       title: title.trim(),
-      cover: coverUrl || 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=500&fit=crop',
+      cover: coverUrl || '/image/封面 1.jpg',
       tags,
       author: '当前用户',
       downloadCount: 0,

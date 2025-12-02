@@ -1,21 +1,34 @@
 import { useState, useEffect } from 'react';
-import { tagCategories } from '../data/mockData';
+import { tagCategories, gradeTags, subjectTags } from '../data/mockData';
 
 interface FilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   selectedTags: string[];
-  onConfirm: (tags: string[]) => void;
+  selectedGrade?: string;
+  selectedSubject?: string;
+  onConfirm: (tags: string[], grade?: string, subject?: string) => void;
 }
 
-export default function FilterDrawer({ isOpen, onClose, selectedTags, onConfirm }: FilterDrawerProps) {
+export default function FilterDrawer({ 
+  isOpen, 
+  onClose, 
+  selectedTags, 
+  selectedGrade: initialGrade = '全部',
+  selectedSubject: initialSubject = '全部',
+  onConfirm 
+}: FilterDrawerProps) {
   const [tempSelectedTags, setTempSelectedTags] = useState<string[]>(selectedTags);
+  const [tempSelectedGrade, setTempSelectedGrade] = useState<string>(initialGrade);
+  const [tempSelectedSubject, setTempSelectedSubject] = useState<string>(initialSubject);
 
   useEffect(() => {
     if (isOpen) {
       setTempSelectedTags(selectedTags);
+      setTempSelectedGrade(initialGrade);
+      setTempSelectedSubject(initialSubject);
     }
-  }, [isOpen, selectedTags]);
+  }, [isOpen, selectedTags, initialGrade, initialSubject]);
 
   const handleTagToggle = (tagId: string) => {
     setTempSelectedTags((prev) =>
@@ -27,10 +40,12 @@ export default function FilterDrawer({ isOpen, onClose, selectedTags, onConfirm 
 
   const handleReset = () => {
     setTempSelectedTags([]);
+    setTempSelectedGrade('全部');
+    setTempSelectedSubject('全部');
   };
 
   const handleConfirm = () => {
-    onConfirm(tempSelectedTags);
+    onConfirm(tempSelectedTags, tempSelectedGrade, tempSelectedSubject);
     onClose();
   };
 
@@ -52,7 +67,78 @@ export default function FilterDrawer({ isOpen, onClose, selectedTags, onConfirm 
         style={{ maxHeight: '85vh', overflowY: 'auto' }}
       >
         <div className="p-4 space-y-5">
-          {tagCategories.map((category) => (
+          {/* 年级选择 */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold text-gray-900">年级</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-2.5">
+              <button
+                onClick={() => setTempSelectedGrade('全部')}
+                className={`px-3 py-3 rounded-lg text-sm font-medium transition-all touch-manipulation bg-gray-100 text-gray-700 active:bg-gray-200 ${
+                  tempSelectedGrade === '全部'
+                    ? 'border-2 border-blue-500'
+                    : 'border border-transparent'
+                }`}
+              >
+                全部
+              </button>
+              {gradeTags.map((tag) => {
+                const isSelected = tempSelectedGrade === tag.name;
+                return (
+                  <button
+                    key={tag.id}
+                    onClick={() => setTempSelectedGrade(tag.name)}
+                    className={`px-3 py-3 rounded-lg text-sm font-medium transition-all touch-manipulation bg-gray-100 text-gray-700 active:bg-gray-200 ${
+                      isSelected
+                        ? 'border-2 border-blue-500'
+                        : 'border border-transparent'
+                    }`}
+                  >
+                    {tag.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 学科选择 */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold text-gray-900">学科</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-2.5">
+              <button
+                onClick={() => setTempSelectedSubject('全部')}
+                className={`px-3 py-3 rounded-lg text-sm font-medium transition-all touch-manipulation bg-gray-100 text-gray-700 active:bg-gray-200 ${
+                  tempSelectedSubject === '全部'
+                    ? 'border-2 border-blue-500'
+                    : 'border border-transparent'
+                }`}
+              >
+                全部
+              </button>
+              {subjectTags.map((tag) => {
+                const isSelected = tempSelectedSubject === tag.name;
+                return (
+                  <button
+                    key={tag.id}
+                    onClick={() => setTempSelectedSubject(tag.name)}
+                    className={`px-3 py-3 rounded-lg text-sm font-medium transition-all touch-manipulation bg-gray-100 text-gray-700 active:bg-gray-200 ${
+                      isSelected
+                        ? 'border-2 border-blue-500'
+                        : 'border border-transparent'
+                    }`}
+                  >
+                    {tag.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 其他标签分类 */}
+          {tagCategories.filter(cat => cat.id !== 'grade' && cat.id !== 'subject').map((category) => (
             <div key={category.id}>
               {/* 分类标题 */}
               <div className="flex items-center justify-between mb-3">

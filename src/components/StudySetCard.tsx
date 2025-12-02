@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StudySetContent } from '../types';
 import { BookOpen } from 'lucide-react';
 
@@ -7,6 +8,8 @@ interface StudySetCardProps {
 }
 
 export default function StudySetCard({ content, onClick }: StudySetCardProps) {
+  const [imageError, setImageError] = useState(false);
+  
   // 随机渐变色，让每个卡片都有不同的颜色
   const gradients = [
     'from-blue-500 via-purple-500 to-pink-500',
@@ -29,21 +32,37 @@ export default function StudySetCard({ content, onClick }: StudySetCardProps) {
   const gradient = gradients[getRandomFromId(content.id, gradients.length)];
   const coverHeight = 120 + getRandomFromId(content.id + 'height', 60); // 120-180px
 
+  const showCover = content.cover && !imageError;
+
   return (
     <div
       onClick={onClick}
       className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden border border-gray-100 active:scale-[0.98]"
     >
-      {/* 卡片头部 - 渐变背景，高度随机变化 */}
-      <div 
-        className={`bg-gradient-to-br ${gradient} relative overflow-hidden`}
-        style={{ height: `${coverHeight}px` }}
-      >
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <BookOpen className="w-14 h-14 text-white/90" strokeWidth={1.5} />
+      {/* 卡片头部 - 封面图片或渐变背景，高度随机变化 */}
+      {showCover ? (
+        <div 
+          className="relative overflow-hidden"
+          style={{ height: `${coverHeight}px` }}
+        >
+          <img
+            src={content.cover}
+            alt={content.title}
+            className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
+          />
         </div>
-      </div>
+      ) : (
+        <div 
+          className={`bg-gradient-to-br ${gradient} relative overflow-hidden`}
+          style={{ height: `${coverHeight}px` }}
+        >
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <BookOpen className="w-14 h-14 text-white/90" strokeWidth={1.5} />
+          </div>
+        </div>
+      )}
 
       {/* 卡片内容 */}
       <div className="p-4">
@@ -82,11 +101,13 @@ export default function StudySetCard({ content, onClick }: StudySetCardProps) {
 
         {/* 作者信息 */}
         <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
-          <img
-            src={content.authorAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${content.author}`}
-            alt={content.author}
-            className="w-6 h-6 rounded-full"
-          />
+          {content.authorAvatar && (
+            <img
+              src={content.authorAvatar}
+              alt={content.author}
+              className="w-6 h-6 rounded-full"
+            />
+          )}
           <span className="text-sm text-gray-600">{content.author}</span>
         </div>
       </div>
