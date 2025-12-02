@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MaterialContent } from '../types';
 import { ArrowLeft, Share2, Star, Image as ImageIcon, MessageCircle, Heart, Edit, File, Plus, MoreVertical } from 'lucide-react';
 import PostMenuDrawer from './PostMenuDrawer';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface MaterialDetailProps {
   content: MaterialContent;
@@ -195,7 +196,7 @@ export default function MaterialDetail({
             </button>
             {content.authorAvatar && (
               <img
-                src={content.authorAvatar.startsWith('http') ? content.authorAvatar : encodeURI(content.authorAvatar)}
+                src={getImageUrl(content.authorAvatar)}
                 alt={content.author}
                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
               />
@@ -224,7 +225,7 @@ export default function MaterialDetail({
         {/* 封面图片 */}
         {content.cover && !coverError ? (
           <img
-            src={content.cover.startsWith('http') ? content.cover : encodeURI(content.cover)}
+            src={getImageUrl(content.cover)}
             alt={content.title}
             className="w-full h-full object-cover"
                       onError={() => {
@@ -306,9 +307,9 @@ export default function MaterialDetail({
             className={`py-4 ${index < mockComments.length - 1 ? 'border-b border-gray-100' : ''}`}
           >
             <div className="flex items-start gap-3">
-              {comment.authorAvatar ? (
+                {comment.authorAvatar ? (
                 <img
-                  src={comment.authorAvatar.startsWith('http') ? comment.authorAvatar : encodeURI(comment.authorAvatar)}
+                  src={getImageUrl(comment.authorAvatar)}
                   alt={comment.author}
                   className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                 />

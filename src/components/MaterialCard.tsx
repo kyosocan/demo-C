@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MaterialContent } from '../types';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface MaterialCardProps {
   content: MaterialContent;
@@ -114,7 +115,7 @@ export default function MaterialCard({ content, onClick }: MaterialCardProps) {
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
             {content.authorAvatar && !avatarError ? (
               <img
-                src={content.authorAvatar.startsWith('http') ? content.authorAvatar : encodeURI(content.authorAvatar)}
+                src={getImageUrl(content.authorAvatar)}
                 alt={content.author}
                 className="w-5 h-5 rounded-full object-cover flex-shrink-0"
                 onError={(_e) => {

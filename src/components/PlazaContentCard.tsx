@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ThumbsUp, Image as ImageIcon } from 'lucide-react';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface PlazaContentCardProps {
   title: string;
@@ -48,7 +49,7 @@ export default function PlazaContentCard({
         <div className="relative w-full h-[167px] overflow-hidden bg-gradient-to-br from-yellow-100 to-orange-100">
           {cover && !coverError ? (
             <img
-              src={encodeURI(cover)}
+              src={getImageUrl(cover)}
               alt={title}
               className="w-full h-full object-cover"
               onError={(_e) => {
@@ -80,7 +81,7 @@ export default function PlazaContentCard({
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
               {authorAvatar && !avatarError ? (
                 <img
-                  src={encodeURI(authorAvatar)}
+                  src={getImageUrl(authorAvatar)}
                   alt={author}
                   className="w-3.75 h-3.75 rounded-full object-cover flex-shrink-0"
                   onError={(_e) => {
@@ -120,7 +121,7 @@ export default function PlazaContentCard({
       <div className="relative w-full h-[167px] overflow-hidden bg-gray-200">
         {cover && !coverError ? (
             <img
-              src={encodeURI(cover)}
+              src={getImageUrl(cover)}
               alt={title}
               className="w-full h-full object-cover"
               onError={(_e) => {
@@ -152,7 +153,7 @@ export default function PlazaContentCard({
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
               {authorAvatar && !avatarError ? (
                 <img
-                  src={encodeURI(authorAvatar)}
+                  src={getImageUrl(authorAvatar)}
                   alt={author}
                   className="w-3.75 h-3.75 rounded-full object-cover flex-shrink-0"
                   onError={(_e) => {

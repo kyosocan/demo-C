@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { ArrowLeft, Bell, Edit, Search, FileText, Heart, Star, MoreVertical, Share2, Trash2 } from 'lucide-react';
 import StatusBar from './StatusBar';
 import PlazaContentCard from './PlazaContentCard';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface ProfilePageProps {
   onBack: () => void;
@@ -70,7 +71,7 @@ export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPost
   const [activeTab, setActiveTab] = useState<'posts' | 'favorites' | 'liked'>('posts');
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState('/image/avatar/我在魔都汇.png');
+  const [avatarUrl, setAvatarUrl] = useState(getImageUrl('/image/avatar/我在魔都汇.png'));
   const [username, setUsername] = useState('131****0299');
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);

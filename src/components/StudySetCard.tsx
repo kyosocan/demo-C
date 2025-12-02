@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StudySetContent } from '../types';
 import { BookOpen } from 'lucide-react';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface StudySetCardProps {
   content: StudySetContent;
@@ -46,7 +47,7 @@ export default function StudySetCard({ content, onClick }: StudySetCardProps) {
           style={{ height: `${coverHeight}px` }}
         >
           <img
-            src={content.cover}
+            src={content.cover ? getImageUrl(content.cover) : ''}
             alt={content.title}
             className="w-full h-full object-cover"
             onError={() => setImageError(true)}
@@ -103,7 +104,7 @@ export default function StudySetCard({ content, onClick }: StudySetCardProps) {
         <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
           {content.authorAvatar && (
             <img
-              src={content.authorAvatar}
+              src={getImageUrl(content.authorAvatar)}
               alt={content.author}
               className="w-6 h-6 rounded-full"
             />

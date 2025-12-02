@@ -24,6 +24,7 @@ import QuizGame from './QuizGame';
 import MindMap from './MindMap';
 import PPTViewer from './PPTViewer';
 import PostMenuDrawer from './PostMenuDrawer';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface StudySetDetailProps {
   content: StudySetContent;
@@ -238,7 +239,7 @@ export default function StudySetDetail({
                 <div className="flex items-center gap-2">
                   {content.authorAvatar && (
                     <img
-                      src={content.authorAvatar}
+                      src={getImageUrl(content.authorAvatar)}
                       alt={content.author}
                       className="w-6 h-6 rounded-full object-cover"
                       onError={(e) => {
@@ -378,10 +379,7 @@ export default function StudySetDetail({
       <div className="px-4 py-6 bg-white border-t border-gray-200 mb-20">
         <div className="flex items-center gap-3 mb-4">
           <img
-            src={
-              content.authorAvatar ||
-              content.authorAvatar || '/image/avatar/default.jpg'
-            }
+            src={getImageUrl(content.authorAvatar || '/image/avatar/default.jpg')}
             alt={content.author}
             className="w-12 h-12 rounded-full"
           />
