@@ -261,6 +261,12 @@ function App() {
                 }
               }
             }}
+            onDraftClick={(draft) => {
+              // 点击草稿进入编辑页面
+              setShowProfilePage(false);
+              setPostText(draft.content || draft.title || '');
+              setShowEditPostPage(true);
+            }}
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, Bell, Edit, Search, FileText, Heart, Star, MoreVertical, Share2, Trash2 } from 'lucide-react';
+import { ArrowLeft, Bell, Edit, Search, FileText, Heart, Star, MoreVertical, Share2, Trash2, Play } from 'lucide-react';
 import StatusBar from './StatusBar';
 import PlazaContentCard from './PlazaContentCard';
 import { getImageUrl } from '../utils/imageUtils';
@@ -9,6 +9,17 @@ interface ProfilePageProps {
   onMessageClick?: () => void;
   onEditPost?: (postId: string) => void;
   onPostClick?: (postId: string) => void;
+  onDraftClick?: (draft: DraftItem) => void;
+}
+
+// 草稿类型
+interface DraftItem {
+  id: string;
+  type: 'text' | 'image' | 'video';
+  title?: string;
+  content?: string;
+  cover?: string;
+  createdAt: string;
 }
 
 // 模拟我发过的帖子
@@ -67,8 +78,33 @@ const myLiked = [
   },
 ];
 
-export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPostClick }: ProfilePageProps) {
-  const [activeTab, setActiveTab] = useState<'posts' | 'favorites' | 'liked'>('posts');
+// 模拟草稿数据
+const myDrafts: DraftItem[] = [
+  {
+    id: 'draft-1',
+    type: 'video',
+    title: '上地换线啦，又有的爬了！',
+    cover: '/image/封面 1.jpg',
+    createdAt: '昨天 14:55',
+  },
+  {
+    id: 'draft-2',
+    type: 'text',
+    content: '我怎么发小红书',
+    createdAt: '1天前',
+  },
+  {
+    id: 'draft-3',
+    type: 'image',
+    title: '三年级数学思维训练分享',
+    cover: '/image/三年级思维训练.jpg',
+    createdAt: '2天前',
+  },
+];
+
+export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPostClick, onDraftClick }: ProfilePageProps) {
+  const [activeTab, setActiveTab] = useState<'posts' | 'favorites' | 'liked' | 'drafts'>('posts');
+  const [drafts, setDrafts] = useState<DraftItem[]>(myDrafts);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(getImageUrl('/image/avatar/我在魔都汇.png'));
@@ -245,6 +281,20 @@ export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPost
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
               )}
             </button>
+            <button
+              onClick={() => setActiveTab('drafts')}
+              className={`relative text-sm font-medium touch-manipulation transition-colors ${
+                activeTab === 'drafts' ? 'text-gray-900' : 'text-gray-500'
+              }`}
+            >
+              草稿
+              {drafts.length > 0 && (
+                <span className="ml-1 text-xs text-gray-400">({drafts.length})</span>
+              )}
+              {activeTab === 'drafts' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
+              )}
+            </button>
           </div>
           {activeTab === 'posts' && selectedPostId ? (
             <button
@@ -332,6 +382,79 @@ export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPost
                   <div className="col-span-2 text-center py-12 text-gray-400">
                     <Heart size={48} className="mx-auto mb-4 opacity-50" />
                     <p className="text-sm">还没有赞过帖子</p>
+                  </div>
+                )}
+              </div>
+            )}
+            {activeTab === 'drafts' && (
+              <div className="grid grid-cols-2 gap-3">
+                {drafts.map((draft) => (
+                  <div
+                    key={draft.id}
+                    className="bg-white rounded-lg overflow-hidden shadow-sm cursor-pointer active:opacity-90 transition-opacity"
+                    onClick={() => {
+                      if (onDraftClick) {
+                        onDraftClick(draft);
+                      }
+                    }}
+                  >
+                    {/* 草稿封面区域 */}
+                    {draft.type === 'text' ? (
+                      /* 文字类型草稿 - 粉色背景 */
+                      <div className="relative aspect-[4/5] bg-pink-50 p-4 flex flex-col">
+                        <div className="text-3xl text-pink-300 font-serif leading-none mb-2">"</div>
+                        <div className="flex-1 flex items-center justify-center">
+                          <div className="text-xl font-bold text-gray-800 text-center leading-tight">
+                            {draft.content}
+                          </div>
+                        </div>
+                        <div className="absolute bottom-3 right-3 w-6 h-0.5 bg-pink-200"></div>
+                      </div>
+                    ) : (
+                      /* 图片/视频类型草稿 */
+                      <div className="relative aspect-[4/5]">
+                        <img
+                          src={getImageUrl(draft.cover || '')}
+                          alt={draft.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23f3f4f6" width="100" height="100"/%3E%3C/svg%3E';
+                          }}
+                        />
+                        {draft.type === 'video' && (
+                          <div className="absolute top-3 right-3 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center">
+                            <Play size={14} className="text-white ml-0.5" fill="white" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* 草稿信息 */}
+                    <div className="p-3">
+                      {draft.title && (
+                        <p className="text-sm text-gray-800 line-clamp-2 mb-2">{draft.title}</p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-400">{draft.createdAt}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // 删除草稿
+                            setDrafts(drafts.filter(d => d.id !== draft.id));
+                          }}
+                          className="p-1 text-gray-400 hover:text-red-500 transition-colors touch-manipulation"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {drafts.length === 0 && (
+                  <div className="col-span-2 text-center py-12 text-gray-400">
+                    <FileText size={48} className="mx-auto mb-4 opacity-50" />
+                    <p className="text-sm">还没有草稿</p>
                   </div>
                 )}
               </div>
