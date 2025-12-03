@@ -36,6 +36,10 @@ jobs:
         env:
           # 设置正确的 base URL，仓库名是 demo-C
           VITE_BASE_URL: '/demo-C/'
+          NODE_ENV: 'production'
+
+      - name: Create .nojekyll file
+        run: touch ./dist/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
