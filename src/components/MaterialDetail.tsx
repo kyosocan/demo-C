@@ -373,10 +373,10 @@ export default function MaterialDetail({
         </div>
       </div>
       
-      {/* 底部操作栏 - 居中显示，左右边界在屏幕中间 */}
+      {/* 底部操作栏 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-bottom z-40">
-        <div className="flex justify-center items-center py-3">
-          <div className="w-1/2 flex items-center justify-between gap-3 px-4">
+        <div className="max-w-[480px] mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
             {/* 左侧评论输入框 */}
             <div className="flex-1 bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
               <Edit size={16} className="text-gray-500 flex-shrink-0" />
