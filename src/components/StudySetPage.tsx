@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { StudySetContent } from '../types';
 import { ChevronDown, MoreVertical, Users, ThumbsUp, Search } from 'lucide-react';
 import PlazaHeader from './PlazaHeader';
-import BottomNav from './BottomNav';
 import FloatingActionButton from './FloatingActionButton';
 
 interface StudySetPageProps {
@@ -128,7 +127,6 @@ export default function StudySetPage({
         </div>
       </div>
 
-      <BottomNav currentTab="community" />
       <FloatingActionButton
         onQuestionClick={onQuestionClick}
         onCreateMaterialClick={() => {}}

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { MaterialContent } from '../types';
 import { ChevronDown } from 'lucide-react';
-import BottomNav from './BottomNav';
 import FloatingActionButton from './FloatingActionButton';
 import MaterialCard from './MaterialCard';
 import StatusBar from './StatusBar';
@@ -178,11 +177,6 @@ export default function MaterialPage({
             />
           ))}
         </div>
-      </div>
-
-      {/* 底部导航栏 */}
-      <div className="fixed bottom-0 left-0 right-0">
-        <BottomNav currentTab="community" />
       </div>
 
       {/* 浮动操作按钮 */}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { MaterialContent } from '../types';
-import { ArrowLeft, Share2, Star, Image as ImageIcon, MessageCircle, Heart, Edit, File, Plus, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Share2, Star, Image as ImageIcon, MessageCircle, Heart, Edit, File, MoreVertical } from 'lucide-react';
 import PostMenuDrawer from './PostMenuDrawer';
 import { getImageUrl } from '../utils/imageUtils';
 
@@ -417,11 +417,6 @@ export default function MaterialDetail({
           </div>
         </div>
       </div>
-      
-      {/* 发帖按钮 - 偏右位置 */}
-      <button className="fixed bottom-24 right-6 w-14 h-14 bg-[#FB2628] rounded-full flex items-center justify-center shadow-lg touch-manipulation z-50 hover:bg-[#E02022] transition-colors">
-        <Plus size={24} className="text-white" />
-      </button>
 
       {/* 帖子菜单抽屉 */}
       {isMyPost && (

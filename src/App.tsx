@@ -3,7 +3,6 @@ import { CommunityContent, MaterialContent, StudySetContent, QuestionContent } f
 import { mockContents } from './data/mockData';
 import PlazaHeader from './components/PlazaHeader';
 import PlazaContentCard from './components/PlazaContentCard';
-import BottomNav from './components/BottomNav';
 import MaterialDetail from './components/MaterialDetail';
 import StudySetDetail from './components/StudySetDetail';
 import QuestionDetail from './components/QuestionDetail';
@@ -526,11 +525,9 @@ function App() {
           </div>
         </div>
 
-        {/* 底部导航栏 */}
-        <BottomNav currentTab="community" />
 
-        {/* 悬浮添加按钮 - 小红书风格（居中） */}
-        <div className="fixed bottom-32 left-0 right-0 flex justify-center z-40 pointer-events-none">
+        {/* 悬浮添加按钮 - 靠右位置 */}
+        <div className="fixed bottom-32 right-6 z-40 pointer-events-none">
           <button
             onClick={() => setShowPostActionSheet(true)}
             className="w-14 h-14 bg-[#FB2628] rounded-full flex items-center justify-center shadow-lg touch-manipulation active:scale-95 transition-transform pointer-events-auto"

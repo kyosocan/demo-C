@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ArrowLeft, FolderPlus, FilePlus, X, Heart, MessageCircle, Download, Smartphone, MessageCircle as WeChatIcon, Folder } from 'lucide-react';
+import { ArrowLeft, FolderPlus, FilePlus, X, Smartphone, MessageCircle as WeChatIcon, Folder } from 'lucide-react';
 
 interface FileItem {
   id: string;
@@ -155,21 +155,6 @@ export default function EditPostPage({
       {/* 底部操作栏 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe">
         <div className="max-w-[480px] mx-auto">
-          {/* 互动按钮 */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <div className="flex items-center gap-6">
-              <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                <Heart size={22} />
-              </button>
-              <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                <MessageCircle size={22} />
-              </button>
-              <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                <Download size={22} />
-              </button>
-            </div>
-          </div>
-          
           {/* 发布按钮 */}
           <div className="flex gap-3 px-4 py-3">
             <button

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { QuestionContent } from '../types';
 import { ChevronDown, Search } from 'lucide-react';
 import PlazaHeader from './PlazaHeader';
-import BottomNav from './BottomNav';
 import FloatingActionButton from './FloatingActionButton';
 import QuestionCard from './QuestionCard';
 
@@ -64,7 +63,6 @@ export default function QAPage({
         </div>
       </div>
 
-      <BottomNav currentTab="community" />
       <FloatingActionButton
         onQuestionClick={onQuestionSubmit}
         onCreateMaterialClick={() => {}}
