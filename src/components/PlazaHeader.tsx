@@ -59,46 +59,46 @@ export default function PlazaHeader({
           {/* 内容分类标签行 - 添加筛选按钮 */}
           <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <button
-                onClick={() => setSelectedCategory('推荐')}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors touch-manipulation ${
-                  selectedCategory === '推荐'
-                    ? 'bg-[#FB2628] text-white'
-                    : 'bg-white text-[#000000E6]'
-                }`}
-              >
-                推荐
-              </button>
-              <button
-                onClick={() => setSelectedCategory('专项练习题')}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors touch-manipulation ${
-                  selectedCategory === '专项练习题'
-                    ? 'bg-[#FB2628] text-white'
-                    : 'bg-white text-[#000000E6]'
-                }`}
-              >
-                专项练习题
-              </button>
-              <button
-                onClick={() => setSelectedCategory('真题试卷')}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors touch-manipulation ${
-                  selectedCategory === '真题试卷'
-                    ? 'bg-[#FB2628] text-white'
-                    : 'bg-white text-[#000000E6]'
-                }`}
-              >
-                真题试卷
-              </button>
-              <button
-                onClick={() => setSelectedCategory('思维导图')}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors touch-manipulation ${
-                  selectedCategory === '思维导图'
-                    ? 'bg-[#FB2628] text-white'
-                    : 'bg-white text-[#000000E6]'
-                }`}
-              >
-                思维导图
-              </button>
+            <button
+              onClick={() => setSelectedCategory('推荐')}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors touch-manipulation ${
+                selectedCategory === '推荐'
+                  ? 'bg-[#FB2628] text-white'
+                  : 'bg-white text-[#000000E6]'
+              }`}
+            >
+              推荐
+            </button>
+            <button
+              onClick={() => setSelectedCategory('专项练习题')}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors touch-manipulation ${
+                selectedCategory === '专项练习题'
+                  ? 'bg-[#FB2628] text-white'
+                  : 'bg-white text-[#000000E6]'
+              }`}
+            >
+              专项练习题
+            </button>
+            <button
+              onClick={() => setSelectedCategory('真题试卷')}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors touch-manipulation ${
+                selectedCategory === '真题试卷'
+                  ? 'bg-[#FB2628] text-white'
+                  : 'bg-white text-[#000000E6]'
+              }`}
+            >
+              真题试卷
+            </button>
+            <button
+              onClick={() => setSelectedCategory('思维导图')}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors touch-manipulation ${
+                selectedCategory === '思维导图'
+                  ? 'bg-[#FB2628] text-white'
+                  : 'bg-white text-[#000000E6]'
+              }`}
+            >
+              思维导图
+            </button>
             </div>
             <button 
               onClick={onFilterClick}

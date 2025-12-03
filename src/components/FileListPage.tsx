@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, MoreVertical, FileText, Folder, Smartphone, Share2, X } from 'lucide-react';
+import { ArrowLeft, MoreVertical, FileText, Folder, Save, Calendar, Printer, X } from 'lucide-react';
 
 interface FileItem {
   id: string;
@@ -46,14 +46,19 @@ export default function FileListPage({ files, title, onBack }: FileListPageProps
     console.log(`执行操作: ${action}，文件ID: ${fileId}`);
     setOpenMenuId(null);
     
-    if (action === 'sync') {
-      // 同步到学习机
-      console.log('同步到学习机:', fileId);
-      // 这里可以添加同步逻辑
-    } else if (action === 'share') {
-      // 分享到微信
-      console.log('分享到微信:', fileId);
-      // 这里可以添加分享逻辑
+    if (action === 'save') {
+      // 转存到学习空间
+      console.log('转存到学习空间:', fileId);
+      // 这里可以添加转存逻辑
+    } else if (action === 'homework') {
+      // 添加到今日作业
+      console.log('添加到今日作业:', fileId);
+      // 这里可以添加添加到作业逻辑
+    } else if (action === 'print') {
+      // 打印
+      console.log('打印:', fileId);
+      // 这里可以添加打印逻辑
+      window.print();
     }
   };
 
@@ -121,18 +126,25 @@ export default function FileListPage({ files, title, onBack }: FileListPageProps
                     className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 min-w-[160px]"
                   >
                     <button
-                      onClick={() => handleMenuAction('sync', file.id)}
+                      onClick={() => handleMenuAction('save', file.id)}
                       className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 touch-manipulation"
                     >
-                      <Smartphone size={16} className="text-gray-400" />
-                      <span>同步到学习机</span>
+                      <Save size={16} className="text-gray-400" />
+                      <span>转存到学习空间</span>
                     </button>
                     <button
-                      onClick={() => handleMenuAction('share', file.id)}
+                      onClick={() => handleMenuAction('homework', file.id)}
                       className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 touch-manipulation"
                     >
-                      <Share2 size={16} className="text-gray-400" />
-                      <span>分享到微信</span>
+                      <Calendar size={16} className="text-gray-400" />
+                      <span>添加到今日作业</span>
+                    </button>
+                    <button
+                      onClick={() => handleMenuAction('print', file.id)}
+                      className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 touch-manipulation"
+                    >
+                      <Printer size={16} className="text-gray-400" />
+                      <span>打印</span>
                     </button>
                   </div>
                 )}

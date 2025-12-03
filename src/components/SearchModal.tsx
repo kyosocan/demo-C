@@ -186,7 +186,7 @@ export default function SearchModal({ isOpen, onClose, value, onChange }: Search
   const handleSubmit = () => {
     if (searchValue.trim()) {
       setShowResults(true);
-      onChange(searchValue);
+    onChange(searchValue);
     }
   };
 
@@ -200,7 +200,7 @@ export default function SearchModal({ isOpen, onClose, value, onChange }: Search
       setShowResults(false);
       setShowFilterPanel(false);
     } else {
-      onClose();
+    onClose();
     }
   };
 
@@ -332,17 +332,17 @@ export default function SearchModal({ isOpen, onClose, value, onChange }: Search
           <button onClick={onClose} className="text-gray-600 p-1 mr-2">
             <ChevronLeft size={22} />
           </button>
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="text"
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <input
+            type="text"
               placeholder="搜索资料、问题、学习集..."
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-              autoFocus
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+            autoFocus
               className="w-full pl-10 pr-8 py-2.5 text-base bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#FB2628]/20"
-            />
+          />
             {searchValue && (
               <button 
                 onClick={handleClear}
@@ -351,17 +351,17 @@ export default function SearchModal({ isOpen, onClose, value, onChange }: Search
                 <X size={18} />
               </button>
             )}
-          </div>
-          <button
-            onClick={handleSubmit}
+        </div>
+        <button
+          onClick={handleSubmit}
             className="ml-3 px-4 py-2 text-[#FB2628] font-medium touch-manipulation"
-          >
-            搜索
-          </button>
+        >
+          搜索
+        </button>
         </div>
       </div>
 
-      <div className="px-4 py-4">
+      <div className="px-4 py-4 space-y-6">
         {/* 搜索历史 */}
         {searchHistory.length > 0 && (
           <div>
