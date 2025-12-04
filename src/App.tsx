@@ -49,6 +49,7 @@ function App() {
   const [selectedSubject, setSelectedSubject] = useState<string>('全部');
   const [fileListData, setFileListData] = useState<{ files: FileItem[]; title: string } | null>(null);
   const [showProfilePage, setShowProfilePage] = useState(false);
+  const [viewingOtherProfile, setViewingOtherProfile] = useState<{ id: string; username: string; avatar?: string } | null>(null);
   const [showMessageCenter, setShowMessageCenter] = useState(false);
   const [showPostActionSheet, setShowPostActionSheet] = useState(false);
   const [showWriteIdeaPage, setShowWriteIdeaPage] = useState(false);
@@ -230,6 +231,65 @@ function App() {
     );
   }
 
+  // 如果显示了他人主页
+  if (viewingOtherProfile) {
+    // 根据用户ID过滤出该用户的笔记
+    const otherUserPosts = contents
+      .filter(c => c.author === viewingOtherProfile.username || c.author === viewingOtherProfile.id)
+      .map(c => ({
+        id: c.id,
+        title: c.type === 'material' ? (c as MaterialContent).title : 
+               c.type === 'question' ? (c as QuestionContent).title :
+               (c as StudySetContent).title,
+        author: c.author,
+        authorAvatar: c.authorAvatar,
+        likes: c.type === 'material' ? (c as MaterialContent).downloadCount :
+                c.type === 'question' ? (c as QuestionContent).commentCount :
+                (c as StudySetContent).studyCount || 0,
+        cover: c.cover,
+        learningCount: c.type === 'material' ? (c as MaterialContent).downloadCount :
+                       c.type === 'studyset' ? (c as StudySetContent).studyCount : undefined,
+      }));
+
+    return (
+      <div className="min-h-screen bg-white flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg">
+          <ProfilePage
+            onBack={() => setViewingOtherProfile(null)}
+            isOwnProfile={false}
+            userInfo={{
+              id: viewingOtherProfile.id,
+              username: viewingOtherProfile.username,
+              avatar: viewingOtherProfile.avatar,
+              followers: 123,
+              following: 45,
+              likes: 567,
+              bio: '这是一个学习分享者',
+            }}
+            userPosts={otherUserPosts}
+            onFollow={(userId) => {
+              console.log('关注用户:', userId);
+            }}
+            onPostClick={(postId) => {
+              // 根据postId在contents中查找对应的内容
+              const post = contents.find(c => c.id === postId);
+              if (post) {
+                setViewingOtherProfile(null);
+                if (post.type === 'material') {
+                  setSelectedMaterial(post as MaterialContent);
+                } else if (post.type === 'question') {
+                  setSelectedQuestion(post as QuestionContent);
+                } else if (post.type === 'studyset') {
+                  setSelectedStudySet(post as StudySetContent);
+                }
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   // 如果显示了个人资料页
   if (showProfilePage) {
     return (
@@ -237,6 +297,7 @@ function App() {
         <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg overflow-hidden">
           <ProfilePage
             onBack={() => setShowProfilePage(false)}
+            isOwnProfile={true}
             onMessageClick={() => {
               setShowProfilePage(false);
               setShowMessageCenter(true);
@@ -368,6 +429,13 @@ function App() {
             onShare={() => handleShareToWeChat(selectedMaterial)}
             onDelete={() => handleDeletePost(selectedMaterial)}
             currentUserId={currentUserId}
+            onAvatarClick={(authorId, authorName, authorAvatar) => {
+              setViewingOtherProfile({
+                id: authorId,
+                username: authorName,
+                avatar: authorAvatar,
+              });
+            }}
           />
         </div>
       </div>
@@ -386,6 +454,13 @@ function App() {
             onShare={() => handleShareToWeChat(selectedQuestion)}
             onDelete={() => handleDeletePost(selectedQuestion)}
             currentUserId={currentUserId}
+            onAvatarClick={(authorId, authorName, authorAvatar) => {
+              setViewingOtherProfile({
+                id: authorId,
+                username: authorName,
+                avatar: authorAvatar,
+              });
+            }}
           />
         </div>
       </div>

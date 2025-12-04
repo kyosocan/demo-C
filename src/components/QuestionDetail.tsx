@@ -11,6 +11,7 @@ interface QuestionDetailProps {
   onShare?: () => void;
   onDelete?: () => void;
   currentUserId?: string; // 当前登录用户ID
+  onAvatarClick?: (authorId: string, authorName: string, authorAvatar?: string) => void; // 头像点击事件
 }
 
 interface CommentItem {
@@ -58,12 +59,14 @@ export default function QuestionDetail({
   onShare,
   onDelete,
   currentUserId = '我在魔都汇', // 默认当前用户
+  onAvatarClick,
 }: QuestionDetailProps) {
   const [likeCount, setLikeCount] = useState(89);
   const [favoriteCount, setFavoriteCount] = useState(45);
   const [commentCount] = useState(12);
   const [isFavorited, setIsFavorited] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [showMenuDrawer, setShowMenuDrawer] = useState(false);
 
   // 判断是否是自己的帖子
@@ -85,26 +88,49 @@ export default function QuestionDetail({
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
             {content.authorAvatar && (
-              <img
-                src={getImageUrl(content.authorAvatar)}
-                alt={content.author}
-                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-              />
+              <button
+                onClick={() => {
+                  if (onAvatarClick && !isMyPost) {
+                    onAvatarClick(content.author, content.author, content.authorAvatar);
+                  }
+                }}
+                className={isMyPost ? '' : 'touch-manipulation'}
+              >
+                <img
+                  src={getImageUrl(content.authorAvatar)}
+                  alt={content.author}
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                />
+              </button>
             )}
             <span className="text-sm font-medium text-gray-900 truncate">{content.author}</span>
           </div>
-          {isMyPost ? (
-            <button 
-              onClick={() => setShowMenuDrawer(true)}
-              className="touch-manipulation p-1"
-            >
-              <MoreVertical size={18} className="text-gray-900" />
-            </button>
-          ) : (
-            <button className="touch-manipulation p-1">
-              <Share2 size={18} className="text-gray-900" />
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {isMyPost ? (
+              <button 
+                onClick={() => setShowMenuDrawer(true)}
+                className="touch-manipulation p-1"
+              >
+                <MoreVertical size={18} className="text-gray-900" />
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsFollowing(!isFollowing)}
+                  className={`touch-manipulation px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    isFollowing
+                      ? 'bg-gray-100 text-gray-700'
+                      : 'bg-[#FB2628] text-white'
+                  }`}
+                >
+                  {isFollowing ? '已关注' : '关注'}
+                </button>
+                <button className="touch-manipulation p-1">
+                  <Share2 size={18} className="text-gray-900" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -235,7 +261,7 @@ export default function QuestionDetail({
             </div>
             
             {/* 右侧操作按钮 */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onClick={() => {
                   setIsLiked(!isLiked);

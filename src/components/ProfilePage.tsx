@@ -1,8 +1,28 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, Bell, Edit, Search, FileText, Heart, Star, MoreVertical, Share2, Trash2, Play } from 'lucide-react';
+import { ArrowLeft, Bell, Edit, FileText, Heart, Star, MoreVertical, Share2, Trash2, Play } from 'lucide-react';
 import StatusBar from './StatusBar';
 import PlazaContentCard from './PlazaContentCard';
 import { getImageUrl } from '../utils/imageUtils';
+
+interface UserInfo {
+  id: string;
+  username: string;
+  avatar?: string;
+  followers?: number;
+  following?: number;
+  likes?: number;
+  bio?: string;
+}
+
+interface PostItem {
+  id: string;
+  title: string;
+  author: string;
+  authorAvatar?: string;
+  likes: number;
+  cover?: string;
+  learningCount?: number;
+}
 
 interface ProfilePageProps {
   onBack: () => void;
@@ -10,6 +30,10 @@ interface ProfilePageProps {
   onEditPost?: (postId: string) => void;
   onPostClick?: (postId: string) => void;
   onDraftClick?: (draft: DraftItem) => void;
+  isOwnProfile?: boolean; // 是否是自己的主页
+  userInfo?: UserInfo; // 他人主页的用户信息
+  onFollow?: (userId: string) => void; // 关注回调
+  userPosts?: PostItem[]; // 他人主页的笔记列表
 }
 
 // 草稿类型
@@ -102,16 +126,50 @@ const myDrafts: DraftItem[] = [
   },
 ];
 
-export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPostClick, onDraftClick }: ProfilePageProps) {
+export default function ProfilePage({ 
+  onBack, 
+  onMessageClick, 
+  onEditPost, 
+  onPostClick, 
+  onDraftClick,
+  isOwnProfile = true,
+  userInfo,
+  onFollow,
+  userPosts
+}: ProfilePageProps) {
   const [activeTab, setActiveTab] = useState<'posts' | 'favorites' | 'liked' | 'drafts'>('posts');
-  const [drafts, setDrafts] = useState<DraftItem[]>(myDrafts);
+  const [drafts, setDrafts] = useState<DraftItem[]>(isOwnProfile ? myDrafts : []);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState(getImageUrl('/image/avatar/我在魔都汇.png'));
-  const [username, setUsername] = useState('131****0299');
+  const [isFollowing, setIsFollowing] = useState(false);
+  
+  // 根据是否是自己的主页决定使用哪个数据源
+  const displayAvatar = isOwnProfile 
+    ? getImageUrl('/image/avatar/我在魔都汇.png')
+    : (userInfo?.avatar ? getImageUrl(userInfo.avatar) : getImageUrl('/image/avatar/我在魔都汇.png'));
+  const displayUsername = isOwnProfile 
+    ? '131****0299'
+    : (userInfo?.username || '用户');
+  const displayBio = isOwnProfile
+    ? '写下个性签名,让学习的逆流中有更多懂你的人!'
+    : (userInfo?.bio || '');
+  const displayFollowers = isOwnProfile ? 0 : (userInfo?.followers || 0);
+  const displayFollowing = isOwnProfile ? 0 : (userInfo?.following || 0);
+  const displayLikes = isOwnProfile ? 0 : (userInfo?.likes || 0);
+  
+  // 根据是否是自己的主页决定显示哪些笔记
+  const displayPosts = isOwnProfile ? myPosts : (userPosts || []);
+  
+  const [avatarUrl, setAvatarUrl] = useState(displayAvatar);
+  const [username, setUsername] = useState(displayUsername);
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const usernameInputRef = useRef<HTMLInputElement>(null);
+  
+  // 如果是他人主页，只显示笔记标签
+  const availableTabs = isOwnProfile 
+    ? ['posts', 'favorites', 'liked', 'drafts'] as const
+    : ['posts'] as const;
   
   return (
     <div className="min-h-screen bg-white">
@@ -148,49 +206,67 @@ export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPost
           {/* 个人信息区域 */}
           <div className="px-4 pt-4 pb-6">
             <div className="flex items-start gap-4">
-              {/* 头像 - 可点击更改 */}
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-20 h-20 rounded-full overflow-hidden bg-white flex-shrink-0 border-3 border-white shadow-lg cursor-pointer touch-manipulation relative group"
-              >
-                <img
-                  src={avatarUrl}
-                  alt="头像"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-400"><span class="text-white text-2xl font-medium">用</span></div>';
-                    }
-                  }}
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                  <Edit size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              {/* 头像 - 自己的主页可点击更改，他人主页不可点击 */}
+              {isOwnProfile ? (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-20 h-20 rounded-full overflow-hidden bg-white flex-shrink-0 border-3 border-white shadow-lg cursor-pointer touch-manipulation relative group"
+                >
+                  <img
+                    src={avatarUrl}
+                    alt="头像"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-400"><span class="text-white text-2xl font-medium">用</span></div>';
+                      }
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                    <Edit size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setAvatarUrl(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </button>
+              ) : (
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-white flex-shrink-0 border-3 border-white shadow-lg">
+                  <img
+                    src={displayAvatar}
+                    alt="头像"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-400"><span class="text-white text-2xl font-medium">' + (displayUsername.charAt(0) || '用') + '</span></div>';
+                      }
+                    }}
+                  />
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setAvatarUrl(reader.result as string);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-              </button>
+              )}
               
               {/* 用户信息 */}
               <div className="flex-1 min-w-0 pt-2">
                 <div className="flex items-center gap-2 mb-3">
-                  {isEditingUsername ? (
+                  {isOwnProfile && isEditingUsername ? (
                     <input
                       ref={usernameInputRef}
                       type="text"
@@ -208,36 +284,60 @@ export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPost
                   ) : (
                     <>
                       <div className="text-white text-base font-medium flex-1">
-                        {username}
+                        {isOwnProfile ? username : displayUsername}
                       </div>
-                      <button
-                        onClick={() => {
-                          setIsEditingUsername(true);
-                          setTimeout(() => usernameInputRef.current?.focus(), 0);
-                        }}
-                        className="touch-manipulation p-1 -mr-1"
-                      >
-                        <Edit size={14} className="text-white/80" />
-                      </button>
+                      {isOwnProfile && (
+                        <button
+                          onClick={() => {
+                            setIsEditingUsername(true);
+                            setTimeout(() => usernameInputRef.current?.focus(), 0);
+                          }}
+                          className="touch-manipulation p-1 -mr-1"
+                        >
+                          <Edit size={14} className="text-white/80" />
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
                 <div className="flex items-center gap-4 text-white text-sm">
-                  <span>0粉丝</span>
-                  <span>0关注</span>
-                  <span>0获赞</span>
+                  <span>{displayFollowers}粉丝</span>
+                  <span>{displayFollowing}关注</span>
+                  <span>{displayLikes}获赞</span>
                 </div>
+                {/* 他人主页显示关注按钮 */}
+                {!isOwnProfile && (
+                  <div className="mt-3">
+                    <button
+                      onClick={() => {
+                        setIsFollowing(!isFollowing);
+                        if (onFollow && userInfo) {
+                          onFollow(userInfo.id);
+                        }
+                      }}
+                      className={`touch-manipulation px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                        isFollowing
+                          ? 'bg-white/20 text-white border border-white/30'
+                          : 'bg-[#FB2628] text-white'
+                      }`}
+                    >
+                      {isFollowing ? '已关注' : '关注'}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* 个性签名 */}
             <div className="mt-4 bg-white/20 backdrop-blur-md rounded-xl px-4 py-3 flex items-center gap-2 border border-white/30 shadow-sm">
               <span className="text-white text-sm flex-1">
-                写下个性签名,让学习的逆流中有更多懂你的人!
+                {displayBio}
               </span>
-              <button className="touch-manipulation">
-                <Edit size={16} className="text-white/80" />
-              </button>
+              {isOwnProfile && (
+                <button className="touch-manipulation">
+                  <Edit size={16} className="text-white/80" />
+                </button>
+              )}
             </div>
 
           </div>
@@ -246,7 +346,7 @@ export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPost
 
       {/* 标签页导航 */}
       <div className="bg-white border-t border-gray-100">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
           <div className="flex items-center gap-6">
             <button
               onClick={() => setActiveTab('posts')}
@@ -254,58 +354,58 @@ export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPost
                 activeTab === 'posts' ? 'text-gray-900' : 'text-gray-500'
               }`}
             >
-              我发过的
+              {isOwnProfile ? '笔记' : '笔记'}
               {activeTab === 'posts' && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
               )}
             </button>
-            <button
-              onClick={() => setActiveTab('favorites')}
-              className={`relative text-sm font-medium touch-manipulation transition-colors ${
-                activeTab === 'favorites' ? 'text-gray-900' : 'text-gray-500'
-              }`}
-            >
-              我收藏的
-              {activeTab === 'favorites' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('liked')}
-              className={`relative text-sm font-medium touch-manipulation transition-colors ${
-                activeTab === 'liked' ? 'text-gray-900' : 'text-gray-500'
-              }`}
-            >
-              我赞过的
-              {activeTab === 'liked' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('drafts')}
-              className={`relative text-sm font-medium touch-manipulation transition-colors ${
-                activeTab === 'drafts' ? 'text-gray-900' : 'text-gray-500'
-              }`}
-            >
-              草稿
-              {drafts.length > 0 && (
-                <span className="ml-1 text-xs text-gray-400">({drafts.length})</span>
-              )}
-              {activeTab === 'drafts' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
-              )}
-            </button>
+            {isOwnProfile && (
+              <>
+                <button
+                  onClick={() => setActiveTab('favorites')}
+                  className={`relative text-sm font-medium touch-manipulation transition-colors ${
+                    activeTab === 'favorites' ? 'text-gray-900' : 'text-gray-500'
+                  }`}
+                >
+                  我收藏的
+                  {activeTab === 'favorites' && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab('liked')}
+                  className={`relative text-sm font-medium touch-manipulation transition-colors ${
+                    activeTab === 'liked' ? 'text-gray-900' : 'text-gray-500'
+                  }`}
+                >
+                  我赞过的
+                  {activeTab === 'liked' && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab('drafts')}
+                  className={`relative text-sm font-medium touch-manipulation transition-colors ${
+                    activeTab === 'drafts' ? 'text-gray-900' : 'text-gray-500'
+                  }`}
+                >
+                  草稿
+                  {drafts.length > 0 && (
+                    <span className="ml-1 text-xs text-gray-400">({drafts.length})</span>
+                  )}
+                  {activeTab === 'drafts' && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
+                  )}
+                </button>
+              </>
+            )}
           </div>
-          {activeTab === 'posts' && selectedPostId ? (
+          {activeTab === 'posts' && selectedPostId && isOwnProfile && (
             <button
               onClick={() => setShowActionSheet(true)}
               className="touch-manipulation"
             >
               <MoreVertical size={18} className="text-gray-700" />
-            </button>
-          ) : (
-            <button className="touch-manipulation">
-              <Search size={18} className="text-gray-700" />
             </button>
           )}
         </div>
@@ -314,7 +414,7 @@ export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPost
         <div className="px-4 py-4 bg-gray-50 min-h-[400px]">
             {activeTab === 'posts' && (
               <div className="grid grid-cols-2 gap-3">
-                {myPosts.map((post, index) => (
+                {displayPosts.map((post, index) => (
                   <PlazaContentCard
                     key={post.id}
                     title={post.title}
@@ -332,10 +432,10 @@ export default function ProfilePage({ onBack, onMessageClick, onEditPost, onPost
                     }}
                   />
                 ))}
-                {myPosts.length === 0 && (
+                {displayPosts.length === 0 && (
                   <div className="col-span-2 text-center py-12 text-gray-400">
                     <FileText size={48} className="mx-auto mb-4 opacity-50" />
-                    <p className="text-sm">还没有发布过帖子</p>
+                    <p className="text-sm">{isOwnProfile ? '还没有发布过帖子' : '还没有笔记'}</p>
                   </div>
                 )}
               </div>
