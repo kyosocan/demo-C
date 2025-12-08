@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, MoreVertical, FileText, Folder, Save, Calendar, Printer, X } from 'lucide-react';
+import { ArrowLeft, MoreVertical, FileText, Folder, Save, Printer, Download, X } from 'lucide-react';
 
 interface FileItem {
   id: string;
@@ -50,10 +50,16 @@ export default function FileListPage({ files, title, onBack }: FileListPageProps
       // 转存到学习空间
       console.log('转存到学习空间:', fileId);
       // 这里可以添加转存逻辑
-    } else if (action === 'homework') {
-      // 添加到今日作业
-      console.log('添加到今日作业:', fileId);
-      // 这里可以添加添加到作业逻辑
+    } else if (action === 'download') {
+      // 下载文件
+      console.log('下载文件:', fileId);
+      // 这里可以添加下载逻辑
+      const file = files.find(f => f.id === fileId);
+      if (file) {
+        // 实际项目中这里应该调用下载 API
+        // 这里只是示例，实际需要根据文件 URL 进行下载
+        console.log('开始下载:', file.name);
+      }
     } else if (action === 'print') {
       // 打印
       console.log('打印:', fileId);
@@ -133,11 +139,11 @@ export default function FileListPage({ files, title, onBack }: FileListPageProps
                       <span>转存到学习空间</span>
                     </button>
                     <button
-                      onClick={() => handleMenuAction('homework', file.id)}
+                      onClick={() => handleMenuAction('download', file.id)}
                       className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 touch-manipulation"
                     >
-                      <Calendar size={16} className="text-gray-400" />
-                      <span>添加到今日作业</span>
+                      <Download size={16} className="text-gray-400" />
+                      <span>下载</span>
                     </button>
                     <button
                       onClick={() => handleMenuAction('print', file.id)}
