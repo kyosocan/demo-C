@@ -166,11 +166,6 @@ export default function ProfilePage({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const usernameInputRef = useRef<HTMLInputElement>(null);
   
-  // 如果是他人主页，只显示笔记标签
-  const availableTabs = isOwnProfile 
-    ? ['posts', 'favorites', 'liked', 'drafts'] as const
-    : ['posts'] as const;
-  
   return (
     <div className="min-h-screen bg-white">
       {/* 顶部背景区域 - 使用现代渐变 */}
