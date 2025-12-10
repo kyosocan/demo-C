@@ -1,4 +1,4 @@
-import { Search, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import StatusBar from './StatusBar';
 import { Teacher } from '../types';
 import { getImageUrl } from '../utils/imageUtils';
@@ -6,7 +6,6 @@ import { getImageUrl } from '../utils/imageUtils';
 interface TeacherPageProps {
   teachers: Teacher[];
   onTeacherClick: (teacher: Teacher) => void;
-  onSearchClick?: () => void;
   onTabChange?: (tab: 'plaza' | 'material' | 'qa' | 'studyset' | 'teacher') => void;
   currentTab?: 'plaza' | 'material' | 'qa' | 'studyset' | 'teacher';
 }
@@ -14,7 +13,6 @@ interface TeacherPageProps {
 export default function TeacherPage({
   teachers,
   onTeacherClick,
-  onSearchClick,
   onTabChange,
   currentTab = 'teacher',
 }: TeacherPageProps) {
@@ -44,46 +42,6 @@ export default function TeacherPage({
               名师咨询
             </button>
           </div>
-          
-          {/* 搜索图标 */}
-          <button
-            onClick={onSearchClick}
-            className="flex-shrink-0 ml-2 touch-manipulation p-1"
-          >
-            <Search size={20} className="text-gray-900" />
-          </button>
-        </div>
-      </div>
-
-      {/* 搜索栏 */}
-      <div className="px-4 py-3 border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7.33333 12.6667C10.2789 12.6667 12.6667 10.2789 12.6667 7.33333C12.6667 4.38781 10.2789 2 7.33333 2C4.38781 2 2 4.38781 2 7.33333C2 10.2789 4.38781 12.6667 7.33333 12.6667Z" stroke="#999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M14 14L11.1 11.1" stroke="#999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <input
-              type="text"
-              placeholder="搜索行家/话题"
-              className="flex-1 bg-transparent text-sm text-gray-600 outline-none"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin size={16} className="text-gray-600" />
-            <span className="text-sm text-gray-600">北京</span>
-          </div>
-          <button className="p-2">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 2C10.5523 2 11 2.44772 11 3V4.5C11 5.05228 10.5523 5.5 10 5.5C9.44772 5.5 9 5.05228 9 4.5V3C9 2.44772 9.44772 2 10 2Z" fill="#666"/>
-              <path d="M15.5 9C15.5 9.55228 15.0523 10 14.5 10H13C12.4477 10 12 9.55228 12 9C12 8.44772 12.4477 8 13 8H14.5C15.0523 8 15.5 8.44772 15.5 9Z" fill="#666"/>
-              <path d="M8 9C8 9.55228 7.55228 10 7 10H5.5C4.94772 10 4.5 9.55228 4.5 9C4.5 8.44772 4.94772 8 5.5 8H7C7.55228 8 8 8.44772 8 9Z" fill="#666"/>
-              <path d="M10 14.5C10 15.0523 10.4477 15.5 11 15.5H12.5C13.0523 15.5 13.5 15.0523 13.5 14.5C13.5 13.9477 13.0523 13.5 12.5 13.5H11C10.4477 13.5 10 13.9477 10 14.5Z" fill="#666"/>
-              <path d="M6.5 14.5C6.5 15.0523 6.94772 15.5 7.5 15.5C8.05228 15.5 8.5 15.0523 8.5 14.5V13C8.5 12.4477 8.05228 12 7.5 12C6.94772 12 6.5 12.4477 6.5 13V14.5Z" fill="#666"/>
-              <path d="M10 6.5C10 5.94772 10.4477 5.5 11 5.5C11.5523 5.5 12 5.94772 12 6.5V7C12 7.55228 11.5523 8 11 8C10.4477 8 10 7.55228 10 7V6.5Z" fill="#666"/>
-              <path d="M10 10C10.5523 10 11 10.4477 11 11V12.5C11 13.0523 10.5523 13.5 10 13.5C9.44772 13.5 9 13.0523 9 12.5V11C9 10.4477 9.44772 10 10 10Z" fill="#666"/>
-            </svg>
-          </button>
         </div>
       </div>
 

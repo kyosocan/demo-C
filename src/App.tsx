@@ -639,7 +639,6 @@ function App() {
               setSelectedTeacher(teacher);
               setCurrentTab('plaza'); // 切换到详情页时，先切换回plaza，然后通过selectedTeacher显示详情
             }}
-            onSearchClick={() => setShowSearchModal(true)}
             onTabChange={setCurrentTab}
           />
         </div>
