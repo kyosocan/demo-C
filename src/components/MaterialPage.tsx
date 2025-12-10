@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { MaterialContent } from '../types';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Search } from 'lucide-react';
 import FloatingActionButton from './FloatingActionButton';
 import MaterialCard from './MaterialCard';
 import StatusBar from './StatusBar';
@@ -96,14 +96,7 @@ export default function MaterialPage({
             onClick={onSearchClick}
             className="p-2 rounded-full active:opacity-70 transition-opacity touch-manipulation"
           >
-            <div 
-              className="w-5 h-5"
-              style={{
-                backgroundImage: `url(http://localhost:3667/assets/Boolean_operation_8_20359.png)`,
-                backgroundSize: '100% 100%',
-                backgroundRepeat: 'no-repeat',
-              }}
-            ></div>
+            <Search size={20} className="text-gray-900" />
           </button>
         </div>
       </div>

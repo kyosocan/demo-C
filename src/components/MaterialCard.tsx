@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MaterialContent } from '../types';
 import { getImageUrl } from '../utils/imageUtils';
+import { FileText, File } from 'lucide-react';
 
 interface MaterialCardProps {
   content: MaterialContent;
@@ -43,13 +44,13 @@ const mockFileLists: { [key: string]: Array<{ name: string; type: 'pdf' | 'folde
   ],
 };
 
-// 模拟其他用户头像 - 从localhost服务器引用
-const mockOtherUsers = [
-  'http://localhost:3667/assets/Group_8_787.png',
-  'http://localhost:3667/assets/Group_8_791.png',
-  'http://localhost:3667/assets/Group_8_830.png',
-  'http://localhost:3667/assets/Group_8_823.png',
-  'http://localhost:3667/assets/Group_8_810.png',
+// 模拟其他用户头像颜色
+const mockOtherUserColors = [
+  'from-pink-400 to-rose-500',
+  'from-blue-400 to-indigo-500',
+  'from-green-400 to-emerald-500',
+  'from-yellow-400 to-orange-500',
+  'from-purple-400 to-violet-500',
 ];
 
 export default function MaterialCard({ content, onClick }: MaterialCardProps) {
@@ -81,27 +82,9 @@ export default function MaterialCard({ content, onClick }: MaterialCardProps) {
           {fileList.slice(0, 3).map((file, index) => (
             <div key={index} className="flex items-center gap-1.5">
               {file.type === 'pdf' ? (
-                <div className="w-4 h-4 flex-shrink-0 relative">
-                  <div 
-                    className="w-full h-full"
-                    style={{
-                      backgroundImage: `url(http://localhost:3667/assets/Vector_5436_12932.png)`,
-                      backgroundSize: '100% 100%',
-                      backgroundRepeat: 'no-repeat',
-                    }}
-                  ></div>
-                </div>
+                <FileText size={16} className="text-red-500 flex-shrink-0" />
               ) : (
-                <div className="w-4 h-4 flex-shrink-0 relative">
-                  <div 
-                    className="w-full h-full"
-                    style={{
-                      backgroundImage: `url(http://localhost:3667/assets/Boolean_operation_8_771.png)`,
-                      backgroundSize: '100% 100%',
-                      backgroundRepeat: 'no-repeat',
-                    }}
-                  ></div>
-                </div>
+                <File size={16} className="text-gray-500 flex-shrink-0" />
               )}
               <span className="text-xs text-[#000000E6] truncate flex-1" style={{ fontSize: '12px', lineHeight: '22px' }}>
                 {file.name}
@@ -124,14 +107,11 @@ export default function MaterialCard({ content, onClick }: MaterialCardProps) {
                 }}
               />
             ) : (
-              <div 
-                className="w-5 h-5 rounded-full flex-shrink-0"
-                style={{
-                  backgroundImage: `url(http://localhost:3667/assets/Ellipse_5436_12957.png)`,
-                  backgroundSize: '100% 100%',
-                  backgroundRepeat: 'no-repeat',
-                }}
-              ></div>
+              <div className="w-5 h-5 rounded-full flex-shrink-0 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                <span className="text-white text-xs font-medium">
+                  {content.author?.charAt(0) || '?'}
+                </span>
+              </div>
             )}
             <span className="text-xs text-[#00000066] truncate" style={{ fontSize: '12px', lineHeight: '18px' }}>
               {content.author}
@@ -153,21 +133,12 @@ export default function MaterialCard({ content, onClick }: MaterialCardProps) {
           <div className="flex items-center gap-1.5 flex-shrink-0">
             {/* 其他用户头像 */}
             <div className="flex items-center -space-x-1">
-              {mockOtherUsers.slice(0, 5).map((avatar, index) => (
+              {mockOtherUserColors.slice(0, 5).map((colorClass, index) => (
                 <div
                   key={index}
-                  className="w-4 h-4 rounded-full border border-white flex items-center justify-center flex-shrink-0 relative"
-                  style={{ marginRight: index < mockOtherUsers.length - 1 ? '-4px' : '0' }}
-                >
-                  <div 
-                    className="w-full h-full rounded-full"
-                    style={{
-                      backgroundImage: `url(${avatar})`,
-                      backgroundSize: '100% 100%',
-                      backgroundRepeat: 'no-repeat',
-                    }}
-                  ></div>
-                </div>
+                  className={`w-4 h-4 rounded-full border border-white flex-shrink-0 bg-gradient-to-br ${colorClass}`}
+                  style={{ marginRight: index < mockOtherUserColors.length - 1 ? '-4px' : '0' }}
+                />
               ))}
             </div>
             <span className="text-xs text-[#00000066] whitespace-nowrap" style={{ fontSize: '12px', lineHeight: '18px' }}>
