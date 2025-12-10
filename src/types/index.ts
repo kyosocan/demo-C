@@ -71,3 +71,46 @@ export interface FilterOptions {
   search?: string;
 }
 
+// 名师咨询相关类型
+export interface Teacher {
+  id: string;
+  name: string;
+  avatar: string;
+  title: string; // 职称/专业
+  location: string; // 位置
+  helpedCount: number; // 帮助人数
+  rating: number; // 评分
+  consultationPrice: number; // 咨询问题价格
+  companionPrice: number; // 规划伴学价格
+  services: string[]; // 服务标签(hashtags)
+  keywords: string[]; // 关键词标签
+  responseRate?: string; // 响应率
+}
+
+// 咨询消息
+export interface ConsultationMessage {
+  id: string;
+  type: 'user' | 'teacher';
+  content: string;
+  timestamp: string;
+  isRead?: boolean;
+}
+
+// 伴学计划
+export interface StudyPlan {
+  id: string;
+  title: string;
+  description: string;
+  tasks: StudyTask[];
+  createdAt: string;
+}
+
+// 伴学任务
+export interface StudyTask {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  dueDate?: string;
+}
+

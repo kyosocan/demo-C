@@ -1,17 +1,21 @@
 import { ArrowLeft, Trash2, Play, Bell as BellIcon } from 'lucide-react';
 import StatusBar from './StatusBar';
 
-interface MessageItem {
+export interface MessageItem {
   id: string;
   icon: 'course' | 'notification';
   title: string;
   description: string;
   source: string;
   date: string;
+  targetType?: 'post' | 'user' | 'profile'; // 跳转类型：post-帖子详情，user-用户主页，profile-个人资料页
+  targetId?: string; // 目标ID（帖子ID或用户ID）
+  targetUserId?: string; // 目标用户ID（用于跳转到用户主页）
 }
 
 interface MessageCenterProps {
   onBack: () => void;
+  onMessageClick?: (message: MessageItem) => void; // 消息点击回调
 }
 
 const mockMessages: MessageItem[] = [
@@ -22,6 +26,8 @@ const mockMessages: MessageItem[] = [
     description: '恭喜！你发布的《魔都1-5年级数学资料汇总》被选为本周精选内容，快去看看吧~',
     source: '来自社区',
     date: '12月3日',
+    targetType: 'post',
+    targetId: '1', // 跳转到资料详情页
   },
   {
     id: '2',
@@ -30,6 +36,8 @@ const mockMessages: MessageItem[] = [
     description: '猫老师妈妈 赞了你的《魔都1-5年级数学资料汇总》，来看看TA的主页吧',
     source: '来自社区',
     date: '12月2日',
+    targetType: 'user',
+    targetUserId: '猫老师妈妈', // 跳转到用户主页
   },
   {
     id: '3',
@@ -38,6 +46,8 @@ const mockMessages: MessageItem[] = [
     description: '清华徐爸爸 收藏了你分享的《三年级思维训练题集》，你的分享很有价值哦！',
     source: '来自社区',
     date: '12月1日',
+    targetType: 'post',
+    targetId: '5', // 跳转到资料详情页
   },
   {
     id: '4',
@@ -46,6 +56,8 @@ const mockMessages: MessageItem[] = [
     description: '教育达人小李 评论了你的《魔都1-5年级数学资料汇总》："太实用了，感谢分享！"',
     source: '来自社区',
     date: '11月30日',
+    targetType: 'post',
+    targetId: '1', // 跳转到资料详情页
   },
   {
     id: '5',
@@ -54,10 +66,11 @@ const mockMessages: MessageItem[] = [
     description: '学习助手、魔都家长 等3位用户关注了你，快去打个招呼吧~',
     source: '来自社区',
     date: '11月28日',
+    targetType: 'profile', // 跳转到个人资料页
   },
 ];
 
-export default function MessageCenter({ onBack }: MessageCenterProps) {
+export default function MessageCenter({ onBack, onMessageClick }: MessageCenterProps) {
   const getIcon = (iconType: 'course' | 'notification') => {
     if (iconType === 'course') {
       return (
@@ -103,7 +116,12 @@ export default function MessageCenter({ onBack }: MessageCenterProps) {
           {mockMessages.map((message, index) => (
             <div
               key={message.id}
-              className={`py-4 ${index < mockMessages.length - 1 ? 'border-b border-gray-100' : ''}`}
+              className={`py-4 ${index < mockMessages.length - 1 ? 'border-b border-gray-100' : ''} ${onMessageClick ? 'cursor-pointer touch-manipulation active:bg-gray-50' : ''}`}
+              onClick={() => {
+                if (onMessageClick && message.targetType) {
+                  onMessageClick(message);
+                }
+              }}
             >
               <div className="flex items-start gap-3">
                 {/* 图标 */}

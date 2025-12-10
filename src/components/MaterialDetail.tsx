@@ -400,42 +400,42 @@ export default function MaterialDetail({
       {/* 底部操作栏 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-bottom z-40">
         <div className="max-w-[480px] mx-auto px-4 py-3">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
             {/* 左侧评论输入框 */}
-            <div className="flex-1 bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
+            <div className="flex-1 min-w-0 bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
               <Edit size={16} className="text-gray-500 flex-shrink-0" />
               <input
                 type="text"
                 placeholder="说点什么..."
-                className="flex-1 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none"
+                className="flex-1 min-w-0 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none"
               />
             </div>
             
             {/* 右侧操作按钮 */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               <button
                 onClick={() => {
                   setIsLiked(!isLiked);
                   setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
                 }}
-                className="flex items-center gap-1 touch-manipulation"
+                className="flex items-center gap-0.5 touch-manipulation"
               >
                 <Heart size={20} className={isLiked ? 'text-[#FB2628] fill-[#FB2628]' : 'text-gray-600'} />
-                <span className="text-sm text-gray-600">{likeCount}</span>
+                <span className="text-xs text-gray-600 whitespace-nowrap">{likeCount}</span>
               </button>
               <button
                 onClick={() => {
                   setIsFavorited(!isFavorited);
                   setFavoriteCount(prev => isFavorited ? prev - 1 : prev + 1);
                 }}
-                className="flex items-center gap-1 touch-manipulation"
+                className="flex items-center gap-0.5 touch-manipulation"
               >
                 <Star size={20} className={isFavorited ? 'text-[#FB2628] fill-[#FB2628]' : 'text-gray-600'} />
-                <span className="text-sm text-gray-600">{favoriteCount}</span>
+                <span className="text-xs text-gray-600 whitespace-nowrap">{favoriteCount}</span>
               </button>
-              <button className="flex items-center gap-1 touch-manipulation">
+              <button className="flex items-center gap-0.5 touch-manipulation">
                 <MessageCircle size={20} className="text-gray-600" />
-                <span className="text-sm text-gray-600">{commentCount}</span>
+                <span className="text-xs text-gray-600 whitespace-nowrap">{commentCount}</span>
               </button>
             </div>
           </div>

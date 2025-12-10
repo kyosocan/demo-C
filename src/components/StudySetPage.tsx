@@ -10,7 +10,7 @@ interface StudySetPageProps {
   onSearchClick: () => void;
   onCreateStudySetClick: () => void;
   onQuestionClick: () => void;
-  onTabChange?: (tab: 'plaza' | 'material' | 'qa' | 'studyset') => void;
+  onTabChange?: (tab: 'plaza' | 'material' | 'qa' | 'studyset' | 'teacher') => void;
 }
 
 export default function StudySetPage({

@@ -11,7 +11,7 @@ interface MaterialPageProps {
   onSearchClick: () => void;
   onCreateMaterialClick: () => void;
   onQuestionClick: () => void;
-  onTabChange?: (tab: 'plaza' | 'material' | 'qa' | 'studyset') => void;
+  onTabChange?: (tab: 'plaza' | 'material' | 'qa' | 'studyset' | 'teacher') => void;
 }
 
 export default function MaterialPage({
@@ -48,10 +48,10 @@ export default function MaterialPage({
       {/* 主导航栏 - 广场、资料、答疑、学习集 */}
       <div className="bg-white border-b border-gray-100">
         <div className="h-11 flex items-center justify-between px-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
             <button
               onClick={() => onTabChange?.('plaza')}
-              className={`text-lg font-semibold transition-colors ${
+              className={`text-lg font-semibold transition-colors whitespace-nowrap ${
                 false ? 'text-[#FB2628]' : 'text-[#000000E6]'
               }`}
             >
@@ -59,7 +59,7 @@ export default function MaterialPage({
             </button>
             <button
               onClick={() => onTabChange?.('material')}
-              className={`text-lg font-semibold transition-colors ${
+              className={`text-lg font-semibold transition-colors whitespace-nowrap ${
                 true ? 'text-[#FB2628]' : 'text-[#000000E6]'
               }`}
             >
@@ -67,7 +67,7 @@ export default function MaterialPage({
             </button>
             <button
               onClick={() => onTabChange?.('qa')}
-              className={`text-lg font-semibold transition-colors ${
+              className={`text-lg font-semibold transition-colors whitespace-nowrap ${
                 false ? 'text-[#FB2628]' : 'text-[#000000E6]'
               }`}
             >
@@ -75,11 +75,19 @@ export default function MaterialPage({
             </button>
             <button
               onClick={() => onTabChange?.('studyset')}
-              className={`text-lg font-semibold transition-colors ${
+              className={`text-lg font-semibold transition-colors whitespace-nowrap ${
                 false ? 'text-[#FB2628]' : 'text-[#000000E6]'
               }`}
             >
               学习集
+            </button>
+            <button
+              onClick={() => onTabChange?.('teacher')}
+              className={`text-lg font-semibold transition-colors whitespace-nowrap ${
+                false ? 'text-[#FB2628]' : 'text-[#000000E6]'
+              }`}
+            >
+              名师咨询
             </button>
           </div>
           

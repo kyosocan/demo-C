@@ -3,9 +3,9 @@ import { ChevronDown, User, Search } from 'lucide-react';
 import StatusBar from './StatusBar';
 
 interface PlazaHeaderProps {
-  currentTab?: 'plaza' | 'material' | 'qa' | 'studyset';
+  currentTab?: 'plaza' | 'material' | 'qa' | 'studyset' | 'teacher';
   currentSubTab?: 'follow' | 'all' | 'hot';
-  onTabChange?: (tab: 'plaza' | 'material' | 'qa' | 'studyset') => void;
+  onTabChange?: (tab: 'plaza' | 'material' | 'qa' | 'studyset' | 'teacher') => void;
   onSubTabChange?: (tab: 'follow' | 'all' | 'hot') => void;
   onSearchClick?: () => void;
   onFilterClick?: () => void; // 新增：筛选按钮点击事件
@@ -18,7 +18,7 @@ interface PlazaHeaderProps {
 export default function PlazaHeader({
   currentTab = 'plaza',
   currentSubTab: _currentSubTab = 'all',
-  onTabChange: _onTabChange,
+  onTabChange,
   onSubTabChange: _onSubTabChange,
   onSearchClick,
   onFilterClick,
@@ -42,12 +42,28 @@ export default function PlazaHeader({
         >
           <User size={20} className="text-gray-900" />
         </button>
-        <span className="text-lg font-semibold text-gray-900">
-          社区广场
-        </span>
+        {/* 标签导航栏 */}
+        <div className="flex items-center gap-6 flex-1 justify-center overflow-x-auto scrollbar-hide">
+          <button
+            onClick={() => onTabChange?.('plaza')}
+            className={`text-lg font-semibold transition-colors whitespace-nowrap ${
+              currentTab === 'plaza' ? 'text-[#FB2628]' : 'text-[#000000E6]'
+            }`}
+          >
+            广场
+          </button>
+          <button
+            onClick={() => onTabChange?.('teacher')}
+            className={`text-lg font-semibold transition-colors whitespace-nowrap ${
+              currentTab === 'teacher' ? 'text-[#FB2628]' : 'text-[#000000E6]'
+            }`}
+          >
+            名师咨询
+          </button>
+        </div>
         <button
           onClick={onSearchClick}
-          className="touch-manipulation p-1"
+          className="touch-manipulation p-1 flex-shrink-0"
         >
           <Search size={20} className="text-gray-900" />
         </button>

@@ -10,7 +10,7 @@ interface QAPageProps {
   onQuestionClick?: (question: QuestionContent) => void;
   onSearchClick: () => void;
   onQuestionSubmit: () => void;
-  onTabChange?: (tab: 'plaza' | 'material' | 'qa' | 'studyset') => void;
+  onTabChange?: (tab: 'plaza' | 'material' | 'qa' | 'studyset' | 'teacher') => void;
 }
 
 export default function QAPage({

@@ -1,4 +1,4 @@
-import { CommunityContent, Tag, StudySetContent } from '../types';
+import { CommunityContent, Tag, StudySetContent, Teacher } from '../types';
 
 // 标签分类
 export interface TagCategory {
@@ -382,5 +382,60 @@ export const mockContents: CommunityContent[] = [
   },
   // 添加学习集数据
   ...mockStudySets,
+];
+
+// 名师数据
+export const mockTeachers: Teacher[] = [
+  {
+    id: 'teacher-1',
+    name: '王老师',
+    avatar: '/image/avatar/我在魔都汇.png',
+    title: '清华附中特级教师，20年教学经验，数学奥赛金牌教练',
+    location: '上海',
+    helpedCount: 98,
+    rating: 9.3,
+    consultationPrice: 20,
+    companionPrice: 300,
+    services: [
+      '付费答疑',
+      '规划伴学',
+    ],
+    keywords: ['小学数学', '奥数培优', '思维训练'],
+    responseRate: '响应率高',
+  },
+  {
+    id: 'teacher-2',
+    name: '李老师',
+    avatar: '/image/avatar/清华徐爸爸.png',
+    title: '北大中文系博士，资深语文教师，作文竞赛评审专家',
+    location: '北京',
+    helpedCount: 153,
+    rating: 9.4,
+    consultationPrice: 25,
+    companionPrice: 300,
+    services: [
+      '付费答疑',
+      '规划伴学',
+    ],
+    keywords: ['语文阅读', '写作技巧', '文学素养'],
+    responseRate: '响应率高',
+  },
+  {
+    id: 'teacher-3',
+    name: '张老师',
+    avatar: '/image/avatar/猫老师妈妈.png',
+    title: '剑桥大学教育学硕士，英语教学专家，口语训练名师',
+    location: '北京',
+    helpedCount: 76,
+    rating: 9.2,
+    consultationPrice: 30,
+    companionPrice: 300,
+    services: [
+      '付费答疑',
+      '规划伴学',
+    ],
+    keywords: ['英语启蒙', '口语训练', '阅读理解'],
+    responseRate: '响应率高',
+  },
 ];
 

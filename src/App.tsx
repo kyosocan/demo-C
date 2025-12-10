@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { CommunityContent, MaterialContent, StudySetContent, QuestionContent } from './types';
-import { mockContents } from './data/mockData';
+import { CommunityContent, MaterialContent, StudySetContent, QuestionContent, Teacher } from './types';
+import { mockContents, mockTeachers } from './data/mockData';
 import PlazaHeader from './components/PlazaHeader';
 import PlazaContentCard from './components/PlazaContentCard';
 import MaterialDetail from './components/MaterialDetail';
@@ -21,6 +21,10 @@ import FilterDrawer from './components/FilterDrawer';
 import MaterialPage from './components/MaterialPage';
 import QAPage from './components/QAPage';
 import StudySetPage from './components/StudySetPage';
+import TeacherDetailPage from './components/TeacherDetailPage';
+import ConsultationPage from './components/ConsultationPage';
+import StudyCompanionPage from './components/StudyCompanionPage';
+import TeacherPage from './components/TeacherPage';
 
 interface FileItem {
   id: string;
@@ -34,7 +38,7 @@ interface FileItem {
 
 function App() {
   const [contents, setContents] = useState<CommunityContent[]>(mockContents);
-  const [currentTab, setCurrentTab] = useState<'plaza' | 'material' | 'qa' | 'studyset'>('plaza');
+  const [currentTab, setCurrentTab] = useState<'plaza' | 'material' | 'qa' | 'studyset' | 'teacher'>('plaza');
   const [currentSubTab, setCurrentSubTab] = useState<'follow' | 'all' | 'hot'>('all');
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialContent | null>(null);
   const [selectedStudySet, setSelectedStudySet] = useState<StudySetContent | null>(null);
@@ -58,6 +62,9 @@ function App() {
   const [postText, setPostText] = useState('');
   const [editingPost, setEditingPost] = useState<CommunityContent | null>(null);
   const [editingFolders, setEditingFolders] = useState<Array<{ name: string; files: FileItem[] }>>([]);
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [showConsultation, setShowConsultation] = useState(false);
+  const [showCompanion, setShowCompanion] = useState(false);
   const currentUserId = '我在魔都汇'; // 当前登录用户
 
   // 根据帖子信息生成文件列表（模拟数据）
@@ -115,6 +122,63 @@ function App() {
   const studySetContents = contents.filter(
     (c) => c.type === 'studyset'
   ) as StudySetContent[];
+
+  // 如果显示了规划伴学页面
+  if (showCompanion && selectedTeacher) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg">
+          <StudyCompanionPage
+            teacher={selectedTeacher}
+            onBack={() => {
+              setShowCompanion(false);
+              setSelectedTeacher(null);
+            }}
+            onPayment={() => {
+              console.log('支付伴学费用:', selectedTeacher.companionPrice);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // 如果显示了咨询问题页面
+  if (showConsultation && selectedTeacher) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg">
+          <ConsultationPage
+            teacher={selectedTeacher}
+            onBack={() => {
+              setShowConsultation(false);
+              setSelectedTeacher(null);
+            }}
+            onPayment={() => {
+              console.log('支付咨询费用:', selectedTeacher.consultationPrice);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // 如果显示了名师详情页
+  if (selectedTeacher && !showConsultation && !showCompanion) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg">
+          <TeacherDetailPage
+            teacher={selectedTeacher}
+            onBack={() => setSelectedTeacher(null)}
+            onConsultationClick={() => setShowConsultation(true)}
+            onCompanionClick={() => setShowCompanion(true)}
+          />
+        </div>
+      </div>
+    );
+  }
+
 
   // 如果显示了编辑页面
   if (showEditPostPage) {
@@ -225,6 +289,35 @@ function App() {
         <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg">
           <MessageCenter
             onBack={() => setShowMessageCenter(false)}
+            onMessageClick={(message) => {
+              setShowMessageCenter(false);
+              
+              if (message.targetType === 'post' && message.targetId) {
+                // 跳转到帖子详情页
+                const post = contents.find(c => c.id === message.targetId);
+                if (post) {
+                  if (post.type === 'material') {
+                    setSelectedMaterial(post as MaterialContent);
+                  } else if (post.type === 'question') {
+                    setSelectedQuestion(post as QuestionContent);
+                  } else if (post.type === 'studyset') {
+                    setSelectedStudySet(post as StudySetContent);
+                  }
+                }
+              } else if (message.targetType === 'user' && message.targetUserId) {
+                // 跳转到用户主页
+                const userPost = contents.find(c => c.author === message.targetUserId);
+                const userAvatar = userPost?.authorAvatar;
+                setViewingOtherProfile({
+                  id: message.targetUserId,
+                  username: message.targetUserId,
+                  avatar: userAvatar,
+                });
+              } else if (message.targetType === 'profile') {
+                // 跳转到个人资料页
+                setShowProfilePage(true);
+              }
+            }}
           />
         </div>
       </div>
@@ -528,6 +621,25 @@ function App() {
             onSearchClick={() => setShowSearchModal(true)}
             onCreateStudySetClick={() => setShowCreateStudySetModal(true)}
             onQuestionClick={() => setShowQuestionModal(true)}
+            onTabChange={setCurrentTab}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (currentTab === 'teacher') {
+    return (
+      <div className="min-h-screen bg-white flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg">
+          <TeacherPage
+            teachers={mockTeachers}
+            currentTab={currentTab}
+            onTeacherClick={(teacher) => {
+              setSelectedTeacher(teacher);
+              setCurrentTab('plaza'); // 切换到详情页时，先切换回plaza，然后通过selectedTeacher显示详情
+            }}
+            onSearchClick={() => setShowSearchModal(true)}
             onTabChange={setCurrentTab}
           />
         </div>
