@@ -78,21 +78,21 @@ export default function TeacherDetailPage({
           服务项目
         </h3>
         <div className="space-y-3">
-          {/* 付费答疑 */}
+          {/* 一次性学习规划 */}
           <div
             onClick={onConsultationClick}
             className="bg-white border border-gray-200 rounded-lg p-4 active:bg-gray-50 transition-colors touch-manipulation"
           >
             <div className="flex items-start justify-between mb-2">
               <h4 className="text-base font-medium text-gray-900 flex-1">
-                付费答疑
+                一次性学习规划
               </h4>
               <span className="text-orange-500 font-semibold text-sm ml-2">
                 ¥{teacher.consultationPrice}/次
               </span>
             </div>
             <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-              针对孩子学习中遇到的具体问题，提供专业解答和指导。包含学科知识点讲解、题目思路分析、学习方法建议等。
+              根据孩子当前学习情况，进行一次性诊断分析，提供个性化学习规划建议和学习方法指导。
             </p>
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-400">
@@ -101,21 +101,21 @@ export default function TeacherDetailPage({
             </div>
           </div>
 
-          {/* 规划伴学 */}
+          {/* 专属伴学 */}
           <div
             onClick={onCompanionClick}
             className="bg-white border border-gray-200 rounded-lg p-4 active:bg-gray-50 transition-colors touch-manipulation"
           >
             <div className="flex items-start justify-between mb-2">
               <h4 className="text-base font-medium text-gray-900 flex-1">
-                规划伴学
+                专属伴学
               </h4>
               <span className="text-orange-500 font-semibold text-sm ml-2">
                 ¥{teacher.companionPrice}/月
               </span>
             </div>
             <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-              根据孩子的学习情况进行诊断分析，制定个性化学习计划，提供持续的伴学提醒和指导。可先免费体验，满意后再付费。
+              持续跟进孩子学习进度，提供个性化学习计划、每日伴学提醒和专属指导。可先免费体验，满意后再付费。
             </p>
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-400">

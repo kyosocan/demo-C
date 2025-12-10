@@ -58,7 +58,7 @@ export default function PlazaHeader({
               currentTab === 'teacher' ? 'text-[#FB2628]' : 'text-[#000000E6]'
             }`}
           >
-            名师咨询
+            规划伴学
           </button>
         </div>
         <button

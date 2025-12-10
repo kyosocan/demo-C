@@ -96,7 +96,7 @@ export default function ConsultationPage({
             <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center border border-gray-200">
               <Lock size={48} className="mx-auto mb-4 text-gray-400" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                付费答疑
+                一次性学习规划
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 支付 ¥{teacher.consultationPrice} 后，您可以向老师提问任何学习相关的问题，老师会为您详细解答

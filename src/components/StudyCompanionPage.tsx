@@ -128,7 +128,7 @@ export default function StudyCompanionPage({
             }}
           />
           <span className="text-base font-semibold text-gray-900">
-            {teacher.name} - 规划伴学
+            {teacher.name} - 专属伴学
           </span>
         </div>
         <div className="w-8" />

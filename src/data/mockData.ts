@@ -397,8 +397,8 @@ export const mockTeachers: Teacher[] = [
     consultationPrice: 20,
     companionPrice: 300,
     services: [
-      '付费答疑',
-      '规划伴学',
+      '一次性学习规划',
+      '专属伴学',
     ],
     keywords: ['小学数学', '奥数培优', '思维训练'],
     responseRate: '响应率高',
@@ -414,8 +414,8 @@ export const mockTeachers: Teacher[] = [
     consultationPrice: 25,
     companionPrice: 300,
     services: [
-      '付费答疑',
-      '规划伴学',
+      '一次性学习规划',
+      '专属伴学',
     ],
     keywords: ['语文阅读', '写作技巧', '文学素养'],
     responseRate: '响应率高',
@@ -431,8 +431,8 @@ export const mockTeachers: Teacher[] = [
     consultationPrice: 30,
     companionPrice: 300,
     services: [
-      '付费答疑',
-      '规划伴学',
+      '一次性学习规划',
+      '专属伴学',
     ],
     keywords: ['英语启蒙', '口语训练', '阅读理解'],
     responseRate: '响应率高',

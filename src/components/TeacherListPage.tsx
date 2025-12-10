@@ -31,7 +31,7 @@ export default function TeacherListPage({
               <ArrowLeft size={20} className="text-gray-900" />
             </button>
             <span className="text-lg font-semibold text-gray-900">
-              名师咨询
+              规划伴学
             </span>
             <div className="w-8" /> {/* 占位符保持居中 */}
           </div>

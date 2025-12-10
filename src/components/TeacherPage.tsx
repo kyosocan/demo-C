@@ -21,7 +21,7 @@ export default function TeacherPage({
       {/* 状态栏 */}
       <StatusBar />
 
-      {/* 主导航栏 - 广场、资料、答疑、学习集、名师咨询 */}
+      {/* 主导航栏 - 广场、规划伴学 */}
       <div className="bg-white border-b border-gray-100">
         <div className="h-11 flex items-center justify-between px-4">
           <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
@@ -39,7 +39,7 @@ export default function TeacherPage({
                 currentTab === 'teacher' ? 'text-[#FB2628]' : 'text-[#000000E6]'
               }`}
             >
-              名师咨询
+              规划伴学
             </button>
           </div>
         </div>
