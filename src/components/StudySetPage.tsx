@@ -3,6 +3,7 @@ import { StudySetContent } from '../types';
 import { ChevronDown, MoreVertical, Users, ThumbsUp, Search } from 'lucide-react';
 import PlazaHeader from './PlazaHeader';
 import FloatingActionButton from './FloatingActionButton';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface StudySetPageProps {
   contents: StudySetContent[];
@@ -109,7 +110,7 @@ export default function StudySetPage({
                   <div className="flex items-center gap-1.5">
                     {content.authorAvatar && (
                       <img
-                        src={content.authorAvatar}
+                        src={getImageUrl(content.authorAvatar)}
                         alt={content.author}
                         className="w-5 h-5 rounded-full object-cover"
                       />

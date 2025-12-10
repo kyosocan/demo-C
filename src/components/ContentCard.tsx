@@ -1,4 +1,5 @@
 import { CommunityContent } from '../types';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface ContentCardProps {
   content: CommunityContent;
@@ -15,7 +16,7 @@ export default function ContentCard({ content, onClick }: ContentCardProps) {
       <div className="relative w-full aspect-[3/4] overflow-hidden bg-gray-200">
         {content.cover && (
           <img
-            src={content.cover}
+            src={getImageUrl(content.cover)}
             alt={content.title}
             className="w-full h-full object-cover"
           />
@@ -88,7 +89,7 @@ export default function ContentCard({ content, onClick }: ContentCardProps) {
           <div className="flex items-center gap-1.5">
             {content.authorAvatar && (
               <img
-                src={content.authorAvatar}
+                src={getImageUrl(content.authorAvatar)}
                 alt={content.author}
                 className="w-5 h-5 rounded-full object-cover"
               />

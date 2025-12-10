@@ -1,5 +1,6 @@
 import { QuestionContent } from '../types';
 import { MoreVertical, Heart, MessageCircle, Share2, Smile, Lightbulb, AlertCircle } from 'lucide-react';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface QuestionCardProps {
   content: QuestionContent;
@@ -33,7 +34,7 @@ export default function QuestionCard({ content, onClick: _onClick }: QuestionCar
           <div className="flex items-center gap-2">
             {content.authorAvatar && (
               <img
-                src={content.authorAvatar}
+                src={getImageUrl(content.authorAvatar)}
                 alt={content.author}
                 className="w-8 h-8 rounded-full object-cover"
               />
@@ -58,7 +59,7 @@ export default function QuestionCard({ content, onClick: _onClick }: QuestionCar
           {content.cover && (
             <div className="flex gap-2 mb-2">
               <img
-                src={content.cover}
+                src={getImageUrl(content.cover)}
                 alt="问题图片"
                 className="w-20 h-20 rounded object-cover"
               />
@@ -111,7 +112,7 @@ export default function QuestionCard({ content, onClick: _onClick }: QuestionCar
             <div className="flex items-center gap-2 mb-2">
               {mockAnswers[0].authorAvatar && (
                 <img
-                  src={mockAnswers[0].authorAvatar}
+                  src={getImageUrl(mockAnswers[0].authorAvatar)}
                   alt={mockAnswers[0].author}
                   className="w-6 h-6 rounded-full object-cover"
                   onError={(e) => {

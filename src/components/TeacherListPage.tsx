@@ -1,6 +1,7 @@
 import { ArrowLeft, MapPin, MoreVertical } from 'lucide-react';
 import { Teacher } from '../types';
 import StatusBar from './StatusBar';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface TeacherListPageProps {
   teachers: Teacher[];
@@ -81,12 +82,12 @@ export default function TeacherListPage({
               {/* 头像 */}
               <div className="flex-shrink-0">
                 <img
-                  src={teacher.avatar}
+                  src={getImageUrl(teacher.avatar)}
                   alt={teacher.name}
                   className="w-16 h-16 rounded-full object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = '/image/avatar/我在魔都汇.png';
+                    target.src = getImageUrl('/image/avatar/我在魔都汇.png');
                   }}
                 />
               </div>

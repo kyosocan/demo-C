@@ -1,6 +1,7 @@
 import { ArrowLeft, MapPin, Heart, Headphones } from 'lucide-react';
 import { Teacher } from '../types';
 import StatusBar from './StatusBar';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface TeacherDetailPageProps {
   teacher: Teacher;
@@ -43,12 +44,12 @@ export default function TeacherDetailPage({
         {/* 头像和基本信息 */}
         <div className="relative z-10 flex flex-col items-center">
           <img
-            src={teacher.avatar}
+            src={getImageUrl(teacher.avatar)}
             alt={teacher.name}
             className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg mb-3"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = '/image/avatar/我在魔都汇.png';
+              target.src = getImageUrl('/image/avatar/我在魔都汇.png');
             }}
           />
           <h2 className="text-2xl font-bold text-white mb-1">

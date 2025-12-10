@@ -2,6 +2,7 @@ import { ArrowLeft, Send } from 'lucide-react';
 import { useState } from 'react';
 import { Teacher, ConsultationMessage } from '../types';
 import StatusBar from './StatusBar';
+import { getImageUrl } from '../utils/imageUtils';
 
 interface StudyCompanionPageProps {
   teacher: Teacher;
@@ -118,12 +119,12 @@ export default function StudyCompanionPage({
         </button>
         <div className="flex items-center gap-2">
           <img
-            src={teacher.avatar}
+            src={getImageUrl(teacher.avatar)}
             alt={teacher.name}
             className="w-6 h-6 rounded-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = '/image/avatar/我在魔都汇.png';
+              target.src = getImageUrl('/image/avatar/我在魔都汇.png');
             }}
           />
           <span className="text-base font-semibold text-gray-900">
@@ -151,12 +152,12 @@ export default function StudyCompanionPage({
                 {message.type === 'teacher' && (
                   <div className="flex items-center gap-2 mb-2">
                     <img
-                      src={teacher.avatar}
+                      src={getImageUrl(teacher.avatar)}
                       alt={teacher.name}
                       className="w-5 h-5 rounded-full object-cover"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = '/image/avatar/我在魔都汇.png';
+                        target.src = getImageUrl('/image/avatar/我在魔都汇.png');
                       }}
                     />
                     <span className="text-xs font-medium text-gray-600">{teacher.name}</span>
