@@ -81,14 +81,6 @@ export default function MaterialPage({
             >
               学习集
             </button>
-            <button
-              onClick={() => onTabChange?.('teacher')}
-              className={`text-lg font-semibold transition-colors whitespace-nowrap ${
-                false ? 'text-[#FB2628]' : 'text-[#000000E6]'
-              }`}
-            >
-              规划伴学
-            </button>
           </div>
           
           {/* 搜索图标 */}

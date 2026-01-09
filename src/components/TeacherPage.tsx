@@ -33,14 +33,6 @@ export default function TeacherPage({
             >
               广场
             </button>
-            <button
-              onClick={() => onTabChange?.('teacher')}
-              className={`text-lg font-semibold transition-colors whitespace-nowrap ${
-                currentTab === 'teacher' ? 'text-[#FB2628]' : 'text-[#000000E6]'
-              }`}
-            >
-              规划伴学
-            </button>
           </div>
         </div>
       </div>

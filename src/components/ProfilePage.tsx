@@ -137,11 +137,29 @@ export default function ProfilePage({
   onFollow,
   userPosts
 }: ProfilePageProps) {
-  const [activeTab, setActiveTab] = useState<'posts' | 'favorites' | 'liked' | 'drafts'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'favorites' | 'liked' | 'drafts' | 'studysets'>('posts');
   const [drafts, setDrafts] = useState<DraftItem[]>(isOwnProfile ? myDrafts : []);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  
+  // 模拟学习集数据
+  const myStudySets = [
+    {
+      id: 'ss-1',
+      title: '三年级语文必背古诗词',
+      cardCount: 12,
+      studyCount: 450,
+      cover: '/image/封面 2.jpg',
+    },
+    {
+      id: 'ss-2',
+      title: '小学数学公式大全',
+      cardCount: 25,
+      studyCount: 1200,
+      cover: '/image/封面 3.jpg',
+    }
+  ];
   
   // 根据是否是自己的主页决定使用哪个数据源
   const displayAvatar = isOwnProfile 
@@ -392,6 +410,17 @@ export default function ProfilePage({
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
                   )}
                 </button>
+                <button
+                  onClick={() => setActiveTab('studysets')}
+                  className={`relative text-sm font-medium touch-manipulation transition-colors ${
+                    activeTab === 'studysets' ? 'text-gray-900' : 'text-gray-500'
+                  }`}
+                >
+                  学习集
+                  {activeTab === 'studysets' && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FB2628] -mb-3"></span>
+                  )}
+                </button>
               </>
             )}
           </div>
@@ -550,6 +579,45 @@ export default function ProfilePage({
                   <div className="col-span-2 text-center py-12 text-gray-400">
                     <FileText size={48} className="mx-auto mb-4 opacity-50" />
                     <p className="text-sm">还没有草稿</p>
+                  </div>
+                )}
+              </div>
+            )}
+            {activeTab === 'studysets' && (
+              <div className="grid grid-cols-2 gap-3">
+                {myStudySets.map((set) => (
+                  <div
+                    key={set.id}
+                    className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col h-full"
+                  >
+                    <div className="relative aspect-[4/3]">
+                      <img
+                        src={getImageUrl(set.cover)}
+                        alt={set.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-md rounded-full px-2 py-1 text-[10px] text-white">
+                        {set.cardCount} 卡片
+                      </div>
+                    </div>
+                    <div className="p-3 flex-1 flex flex-col justify-between">
+                      <h4 className="text-sm font-bold text-gray-900 line-clamp-2 mb-2 leading-tight">
+                        {set.title}
+                      </h4>
+                      <div className="flex items-center justify-between mt-auto">
+                        <div className="flex items-center gap-1 text-gray-400">
+                          <Play size={10} />
+                          <span className="text-[10px]">{set.studyCount}次学习</span>
+                        </div>
+                        <button className="text-[#FB2628] text-xs font-medium">去学习</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {myStudySets.length === 0 && (
+                  <div className="col-span-2 text-center py-12 text-gray-400">
+                    <FileText size={48} className="mx-auto mb-4 opacity-50" />
+                    <p className="text-sm">还没有学习集</p>
                   </div>
                 )}
               </div>

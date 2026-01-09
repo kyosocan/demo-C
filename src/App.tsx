@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { CommunityContent, MaterialContent, StudySetContent, QuestionContent, Teacher } from './types';
 import { mockContents, mockTeachers } from './data/mockData';
 import PlazaHeader from './components/PlazaHeader';
@@ -9,10 +9,12 @@ import QuestionDetail from './components/QuestionDetail';
 import FileListPage from './components/FileListPage';
 import ProfilePage from './components/ProfilePage';
 import MessageCenter from './components/MessageCenter';
+import MessageBubble from './components/MessageBubble';
 import PostActionSheet from './components/PostActionSheet';
 import WriteIdeaPage from './components/WriteIdeaPage';
 import SelectIllustrationPage from './components/SelectIllustrationPage';
 import EditPostPage from './components/EditPostPage';
+import LearningSpacePage from './components/LearningSpacePage';
 import CreateMaterialModal from './components/CreateMaterialModal';
 import CreateStudySetModal from './components/CreateStudySetModal';
 import QuestionModal from './components/QuestionModal';
@@ -25,6 +27,11 @@ import TeacherDetailPage from './components/TeacherDetailPage';
 import ConsultationPage from './components/ConsultationPage';
 import StudyCompanionPage from './components/StudyCompanionPage';
 import TeacherPage from './components/TeacherPage';
+import CardActionPopup from './components/CardActionPopup';
+import ReportPage from './components/ReportPage';
+import Toast from './components/Toast';
+import BottomNav from './components/BottomNav';
+import CheckInChallengePage from './components/CheckInChallengePage';
 
 interface FileItem {
   id: string;
@@ -59,13 +66,90 @@ function App() {
   const [showWriteIdeaPage, setShowWriteIdeaPage] = useState(false);
   const [showSelectIllustrationPage, setShowSelectIllustrationPage] = useState(false);
   const [showEditPostPage, setShowEditPostPage] = useState(false);
+  const [showLearningSpace, setShowLearningSpace] = useState(false);
   const [postText, setPostText] = useState('');
   const [editingPost, setEditingPost] = useState<CommunityContent | null>(null);
   const [editingFolders, setEditingFolders] = useState<Array<{ name: string; files: FileItem[] }>>([]);
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [showConsultation, setShowConsultation] = useState(false);
   const [showCompanion, setShowCompanion] = useState(false);
+  const [showCardActionPopup, setShowCardActionPopup] = useState(false);
+  const [cardActionPosition, setCardActionPosition] = useState({ x: 0, y: 0 });
+  const [longPressedContent, setLongPressedContent] = useState<CommunityContent | null>(null);
+  const [showReportPage, setShowReportPage] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showMessageBubble, setShowMessageBubble] = useState(false);
+  const [showCheckInChallenge, setShowCheckInChallenge] = useState(false);
   const currentUserId = '我在魔都汇'; // 当前登录用户
+  
+  // 消息数量（模拟数据，实际应该从API获取）
+  const messageCount = 5; // 从 MessageCenter 的 mockMessages 获取，这里暂时写死
+
+  // 检查是否第一次进入广场
+  useEffect(() => {
+    if (currentTab === 'plaza') {
+      // 开发测试：如果需要测试气泡显示，可以在浏览器控制台执行：
+      // localStorage.removeItem('hasVisitedPlaza');
+      const hasVisitedPlaza = localStorage.getItem('hasVisitedPlaza');
+      if (!hasVisitedPlaza && messageCount > 0) {
+        setShowMessageBubble(true);
+        // 4秒后自动消失
+        const timer = setTimeout(() => {
+          setShowMessageBubble(false);
+          localStorage.setItem('hasVisitedPlaza', 'true');
+        }, 4000);
+        return () => clearTimeout(timer);
+      } else {
+        setShowMessageBubble(false);
+      }
+    } else {
+      setShowMessageBubble(false);
+    }
+  }, [currentTab, messageCount]);
+
+  // 处理消息气泡点击
+  const handleMessageBubbleClick = useCallback(() => {
+    setShowMessageBubble(false);
+    setShowMessageCenter(true);
+    localStorage.setItem('hasVisitedPlaza', 'true');
+  }, []);
+
+  // 处理消息气泡关闭
+  const handleMessageBubbleClose = useCallback(() => {
+    setShowMessageBubble(false);
+    localStorage.setItem('hasVisitedPlaza', 'true');
+  }, []);
+
+  // 处理长按卡片
+  const handleCardLongPress = useCallback((content: CommunityContent, position: { x: number; y: number }) => {
+    setLongPressedContent(content);
+    setCardActionPosition(position);
+    setShowCardActionPopup(true);
+  }, []);
+
+  // 处理不喜欢
+  const handleDislike = useCallback(() => {
+    setShowCardActionPopup(false);
+    setToastMessage('反馈成功，将帮您优化推荐结果');
+    setShowToast(true);
+    setLongPressedContent(null);
+  }, []);
+
+  // 处理举报
+  const handleReport = useCallback(() => {
+    setShowCardActionPopup(false);
+    setShowReportPage(true);
+  }, []);
+
+  // 处理举报提交
+  const handleReportSubmit = useCallback((data: { mainReason: string; subReason: string; content: string; images: string[] }) => {
+    console.log('举报提交:', data, '被举报内容:', longPressedContent);
+    setShowReportPage(false);
+    setToastMessage('举报已提交，我们会尽快处理');
+    setShowToast(true);
+    setLongPressedContent(null);
+  }, [longPressedContent]);
 
   // 根据帖子信息生成文件列表（模拟数据）
   const getFilesForPost = (post: CommunityContent): FileItem[] => {
@@ -122,6 +206,36 @@ function App() {
   const studySetContents = contents.filter(
     (c) => c.type === 'studyset'
   ) as StudySetContent[];
+
+  // 如果显示了打卡挑战页面
+  if (showCheckInChallenge) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg relative">
+          <CheckInChallengePage
+            onBack={() => setShowCheckInChallenge(false)}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // 如果显示了举报页面
+  if (showReportPage) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg">
+          <ReportPage
+            onBack={() => {
+              setShowReportPage(false);
+              setLongPressedContent(null);
+            }}
+            onSubmit={handleReportSubmit}
+          />
+        </div>
+      </div>
+    );
+  }
 
   // 如果显示了规划伴学页面
   if (showCompanion && selectedTeacher) {
@@ -180,6 +294,38 @@ function App() {
   }
 
 
+  // 如果显示了学习空间页面
+  if (showLearningSpace) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg">
+          <LearningSpacePage
+            mode="select"
+            onBack={() => setShowLearningSpace(false)}
+            onSelectFiles={(selectedFiles) => {
+              // 将选中的文件和文件夹添加到编辑页面的文件夹中
+              const newFiles: FileItem[] = selectedFiles.map(f => ({
+                id: f.id,
+                name: f.name,
+                type: f.type === 'pdf' ? 'pdf' : f.type === 'folder' ? 'folder' : 'file',
+                date: f.date,
+                size: f.size,
+                title: f.name,
+              }));
+              
+              // 添加到编辑文件夹列表
+              if (newFiles.length > 0) {
+                setEditingFolders([...editingFolders, { name: '', files: newFiles }]);
+              }
+              
+              setShowLearningSpace(false);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   // 如果显示了编辑页面
   if (showEditPostPage) {
     return (
@@ -236,6 +382,9 @@ function App() {
               setShowEditPostPage(false);
               setEditingPost(null);
               setEditingFolders([]);
+            }}
+            onOpenLearningSpace={() => {
+              setShowLearningSpace(true);
             }}
           />
         </div>
@@ -507,6 +656,22 @@ function App() {
     }
   };
 
+  const [mainTab, setMainTab] = useState<'learn' | 'community' | 'mall' | 'device' | 'love'>('community');
+
+  // 如果显示了学习空间页面
+  if (mainTab === 'learn') {
+    return (
+      <div className="min-h-screen bg-gray-100 flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen shadow-lg relative overflow-hidden">
+          <LearningSpacePage
+            onBack={() => setMainTab('community')}
+          />
+          <BottomNav currentTab="learn" onTabChange={setMainTab} />
+        </div>
+      </div>
+    );
+  }
+
   // 如果选中了资料，显示详情页
   if (selectedMaterial) {
     return (
@@ -648,28 +813,108 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#F4F5FA] flex justify-center">
-      {/* 移动端容器 */}
-      <div className="w-full max-w-[480px] bg-[#F4F5FA] min-h-screen pb-24 shadow-lg relative">
-        <PlazaHeader
-          currentTab={currentTab}
-          currentSubTab={currentSubTab}
-          onTabChange={setCurrentTab}
-          onSubTabChange={setCurrentSubTab}
-          onSearchClick={() => setShowSearchModal(true)}
-          onFilterClick={() => setShowFilterDrawer(true)}
-          onProfileClick={() => setShowProfilePage(true)}
-          selectedGrade={selectedGrade}
-          selectedSubject={selectedSubject}
-        />
+      {/* 移动端容器 - 375px 宽度 */}
+      <div className="w-full max-w-[375px] bg-[#F4F5FA] min-h-screen pb-24 shadow-lg relative overflow-hidden">
+        {/* 背景渐变层 - 274px 高度 */}
+        <div className="absolute top-0 left-0 right-0 h-[274px] pointer-events-none z-0 overflow-hidden">
+          {/* 底层渐变背景 - 温暖的橙粉色调 */}
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(180deg, #FFE4D6 0%, #FFF0E8 40%, #F7F9FC 70%, #F4F5FA 100%)',
+            }}
+          />
+          {/* 毛玻璃效果层 */}
+          <div 
+            className="absolute inset-0"
+            style={{
+              backdropFilter: 'blur(30px)',
+              WebkitBackdropFilter: 'blur(30px)',
+              background: 'rgba(255, 180, 150, 0.15)',
+            }}
+          />
+          {/* 装饰性流星/星点效果 */}
+          <div className="absolute top-[15px] right-[20px] opacity-40">
+            <svg width="172" height="86" viewBox="0 0 172 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="100" cy="30" r="1.5" fill="white" fillOpacity="0.8"/>
+              <circle cx="120" cy="45" r="1" fill="white" fillOpacity="0.6"/>
+              <circle cx="80" cy="50" r="1.8" fill="white" fillOpacity="0.5"/>
+              <circle cx="140" cy="35" r="0.8" fill="white" fillOpacity="0.9"/>
+              <circle cx="60" cy="25" r="1.2" fill="white" fillOpacity="0.6"/>
+              <circle cx="50" cy="40" r="0.6" fill="white" fillOpacity="0.7"/>
+              <circle cx="150" cy="55" r="1" fill="white" fillOpacity="0.5"/>
+              <path d="M85 18L115 33" stroke="white" strokeOpacity="0.4" strokeWidth="0.8" strokeLinecap="round"/>
+              <path d="M105 38L140 58" stroke="white" strokeOpacity="0.3" strokeWidth="0.6" strokeLinecap="round"/>
+              <path d="M70 30L95 45" stroke="white" strokeOpacity="0.25" strokeWidth="0.5" strokeLinecap="round"/>
+            </svg>
+          </div>
+          {/* 底部渐变过渡 */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-[120px]"
+            style={{
+              background: 'linear-gradient(180deg, transparent 0%, #F4F5FA 100%)',
+            }}
+          />
+        </div>
+        
+        <div className="relative z-10">
+          <PlazaHeader
+            currentTab={currentTab}
+            currentSubTab={currentSubTab}
+            onTabChange={setCurrentTab}
+            onSubTabChange={setCurrentSubTab}
+            onSearchClick={() => setShowSearchModal(true)}
+            onFilterClick={() => setShowFilterDrawer(true)}
+            onProfileClick={() => setShowProfilePage(true)}
+            selectedGrade={selectedGrade}
+            selectedSubject={selectedSubject}
+          />
 
-        <div 
-          id="plaza-scroll-container"
-          className="overflow-y-auto pb-20" 
-          style={{ maxHeight: 'calc(100vh - 180px)' }}
-        >
-          {/* 内容卡片 - 两列布局 */}
-          <div className="px-4 pb-4 pt-2">
-            <div className="grid grid-cols-2 gap-3">
+          {/* 消息气泡 - 显示在筛选项条中间下方 */}
+          {showMessageBubble && currentTab === 'plaza' && (
+            <div className="relative z-50 -mt-1 mb-2">
+              <MessageBubble
+                messageCount={messageCount}
+                onClose={handleMessageBubbleClose}
+                onClick={handleMessageBubbleClick}
+              />
+            </div>
+          )}
+
+          <div 
+            id="plaza-scroll-container"
+            className="overflow-y-auto pb-20" 
+            style={{ maxHeight: 'calc(100vh - 180px)' }}
+          >
+            {/* 打卡挑战入口 Banner */}
+            {currentTab === 'plaza' && (
+              <div className="px-4 mt-2">
+                <div 
+                  onClick={() => setShowCheckInChallenge(true)}
+                  className="bg-gradient-to-r from-[#FF6B6B] to-[#FB2628] rounded-xl p-4 flex items-center justify-between shadow-lg shadow-red-100 cursor-pointer active:scale-[0.98] transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="white"/>
+                        <path d="M12 3V5M12 19V21M21 12H19M5 12H3M18.36 5.64L16.95 7.05M7.05 16.95L5.64 18.36M18.36 18.36L16.95 16.95M7.05 7.05L5.64 5.64" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold text-sm">7天打卡挑战 · 赢好礼</h4>
+                      <p className="text-white/80 text-[10px]">全部完成后可免费兑换精选图书</p>
+                    </div>
+                  </div>
+                  <div className="bg-white text-[#FB2628] text-xs px-3 py-1.5 rounded-full font-bold">
+                    立即参与
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 内容卡片 - 两列瀑布流布局 */}
+            <div className="px-4 pb-4 pt-2">
+              <div className="grid grid-cols-2 gap-[7px]">
               {plazaContents.map((content, index) => {
                 if (content.type === 'material') {
                   return (
@@ -678,11 +923,12 @@ function App() {
                       title={content.title}
                       author={content.author}
                       authorAvatar={content.authorAvatar}
-                      likes={Math.floor(Math.random() * 200) + 50}
+                      likes={content.downloadCount || Math.floor(Math.random() * 200) + 50}
                       cover={content.cover}
                       learningCount={content.downloadCount}
                       variant={index === 0 ? 'special' : 'default'}
                       onClick={() => setSelectedMaterial(content)}
+                      onLongPress={(position) => handleCardLongPress(content, position)}
                     />
                   );
                 } else if (content.type === 'studyset') {
@@ -693,9 +939,11 @@ function App() {
                       subtitle={`${content.cardCount}张卡片`}
                       author={content.author}
                       authorAvatar={content.authorAvatar}
-                      likes={Math.floor(Math.random() * 200) + 50}
+                      likes={content.studyCount || Math.floor(Math.random() * 200) + 50}
+                      cover={content.cover}
                       learningCount={content.studyCount}
                       onClick={() => setSelectedStudySet(content)}
+                      onLongPress={(position) => handleCardLongPress(content, position)}
                     />
                   );
                 } else {
@@ -709,6 +957,7 @@ function App() {
                       likes={content.commentCount || 0}
                       cover={content.cover}
                       onClick={() => setSelectedQuestion(content as QuestionContent)}
+                      onLongPress={(position) => handleCardLongPress(content, position)}
                     />
                   );
                 }
@@ -716,16 +965,19 @@ function App() {
             </div>
           </div>
         </div>
+        </div>
 
-
-        {/* 悬浮添加按钮 - 靠右位置 */}
-        <div className="fixed bottom-32 right-6 z-40 pointer-events-none">
+        {/* 悬浮添加按钮 - 右下角位置 */}
+        <div className="fixed bottom-[100px] z-40" style={{ right: 'calc(50% - 187.5px + 16px)' }}>
           <button
             onClick={() => setShowPostActionSheet(true)}
-            className="w-14 h-14 bg-[#FB2628] rounded-full flex items-center justify-center shadow-lg touch-manipulation active:scale-95 transition-transform pointer-events-auto"
+            className="w-14 h-14 bg-[#FB2628] rounded-full flex items-center justify-center touch-manipulation active:scale-95 transition-transform"
+            style={{
+              boxShadow: '0px 4px 12px rgba(251, 38, 40, 0.4)',
+            }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 1V17M1 9H17" stroke="white" strokeWidth="3" strokeLinecap="round"/>
             </svg>
           </button>
         </div>
@@ -802,6 +1054,29 @@ function App() {
             setShowFilterDrawer(false);
           }}
         />
+
+        {/* 长按弹出菜单 */}
+        <CardActionPopup
+          isOpen={showCardActionPopup}
+          position={cardActionPosition}
+          onClose={() => {
+            setShowCardActionPopup(false);
+            setLongPressedContent(null);
+          }}
+          onDislike={handleDislike}
+          onReport={handleReport}
+        />
+
+        {/* Toast 提示 */}
+        <Toast
+          message={toastMessage}
+          isVisible={showToast}
+          duration={1000}
+          onClose={() => setShowToast(false)}
+        />
+
+        {/* 底部导航栏 */}
+        <BottomNav currentTab={mainTab} onTabChange={setMainTab} />
       </div>
     </div>
   );

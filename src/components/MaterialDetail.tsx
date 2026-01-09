@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MaterialContent } from '../types';
-import { ArrowLeft, Share2, Star, Image as ImageIcon, MessageCircle, Heart, Edit, File, MoreVertical } from 'lucide-react';
 import PostMenuDrawer from './PostMenuDrawer';
 import { getImageUrl } from '../utils/imageUtils';
 
@@ -84,57 +83,88 @@ const mockFiles: FileItem[] = [
   },
 ];
 
-// 模拟评论数据
-const mockComments: CommentItem[] = [
-  {
-    id: '1',
-    author: '数学老师',
-    authorAvatar: '/image/avatar/我在魔都汇.png',
-    content: '这套试卷很不错，题目难度适中，适合三年级学生练习。',
-    time: '2小时前',
-    likes: 12,
-    replies: [
-      {
-        id: '1-1',
-        author: '家长小李',
-        content: '谢谢老师推荐！',
-        time: '1小时前',
-        likes: 3,
-      },
-      {
-        id: '1-2',
-        author: '学生家长',
-        content: '确实很好用，孩子做完了。',
-        time: '30分钟前',
-        likes: 2,
-      },
-    ],
-  },
-  {
-    id: '2',
-    author: '家长小王',
-    authorAvatar: '/image/avatar/猫老师妈妈.png',
-    content: '感谢分享！已经下载给孩子做了，很有帮助。',
-    time: '5小时前',
-    likes: 8,
-    replies: [
-      {
-        id: '2-1',
-        author: '我在魔都汇',
-        content: '不客气，希望对您有帮助！',
-        time: '4小时前',
-        likes: 5,
-      },
-    ],
-  },
-  {
-    id: '3',
-    author: '教育工作者',
-    content: '内容很全面，涵盖了所有重点知识点。',
-    time: '1天前',
-    likes: 15,
-  },
-];
+const fontPingFang = { fontFamily: 'PingFang SC, sans-serif' } as const;
+
+const BackIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M15 6L9 12L15 18" stroke="rgba(0,0,0,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const MoreDotsIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="6.5" cy="12" r="1.5" fill="rgba(0,0,0,0.9)" />
+    <circle cx="12" cy="12" r="1.5" fill="rgba(0,0,0,0.9)" />
+    <circle cx="17.5" cy="12" r="1.5" fill="rgba(0,0,0,0.9)" />
+  </svg>
+);
+
+const PencilIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path
+      d="M14.5 6.5L17.5 9.5M4 20H7.5L18.5 9C19.1 8.4 19.1 7.6 18.5 7L17 5.5C16.4 4.9 15.6 4.9 15 5.5L4 16.5V20Z"
+      stroke="rgba(0,0,0,0.4)"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const HeartOutlineIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path
+      d="M10 5.3C10 5.3 8.2 3 5.7 3C3.5 3 2.2 4.7 2.2 6.7C2.2 10.4 10 16.2 10 16.2C10 16.2 17.8 10.4 17.8 6.7C17.8 4.7 16.5 3 14.3 3C11.8 3 10 5.3 10 5.3Z"
+      stroke="rgba(0,0,0,0.9)"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const CommentIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path
+      d="M6.8 15.8L4 17V14.8C3 13.8 2.4 12.5 2.4 11V7.5C2.4 5.2 4.3 3.4 6.6 3.4H13.4C15.7 3.4 17.6 5.2 17.6 7.5V11C17.6 13.3 15.7 15.2 13.4 15.2H7.8C7.4 15.2 7.1 15.4 6.8 15.8Z"
+      stroke="rgba(0,0,0,0.9)"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const ShareIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path
+      d="M12 5L16 9L12 13"
+      stroke="rgba(0,0,0,0.9)"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M4 9H15"
+      stroke="rgba(0,0,0,0.9)"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const FolderIcon = () => (
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path
+      d="M4.5 9.5C4.5 8.4 5.4 7.5 6.5 7.5H13.2L15 9.6C15.4 10 15.9 10.2 16.4 10.2H25.5C26.6 10.2 27.5 11.1 27.5 12.2V22.5C27.5 23.6 26.6 24.5 25.5 24.5H6.5C5.4 24.5 4.5 23.6 4.5 22.5V9.5Z"
+      fill="#F2C94C"
+    />
+    <path
+      d="M4.5 12.2C4.5 11.1 5.4 10.2 6.5 10.2H25.5C26.6 10.2 27.5 11.1 27.5 12.2V22.5C27.5 23.6 26.6 24.5 25.5 24.5H6.5C5.4 24.5 4.5 23.6 4.5 22.5V12.2Z"
+      fill="#F6D365"
+      opacity="0.9"
+    />
+  </svg>
+);
 
 export default function MaterialDetail({ 
   content, 
@@ -146,58 +176,147 @@ export default function MaterialDetail({
   currentUserId = '我在魔都汇', // 默认当前用户
   onAvatarClick,
 }: MaterialDetailProps) {
-  const [likeCount, setLikeCount] = useState(1236);
-  const [favoriteCount, setFavoriteCount] = useState(1083);
-  const [commentCount] = useState(192);
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(150);
+  const [commentCount, setCommentCount] = useState(150);
+  const [shareCount, setShareCount] = useState(150);
   const [isFollowing, setIsFollowing] = useState(false);
   const [coverError, setCoverError] = useState(false);
   const [showMenuDrawer, setShowMenuDrawer] = useState(false);
+  const [showTransferGuide, setShowTransferGuide] = useState(false);
+  const [guideRect, setGuideRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const [guideTooltipTop, setGuideTooltipTop] = useState<number | null>(null);
+  const pageContainerRef = useRef<HTMLDivElement | null>(null);
+  const fileCardRef = useRef<HTMLButtonElement | null>(null);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
 
   // 判断是否是自己的帖子
   const isMyPost = content.author === currentUserId;
 
-  // 获取年级标签
-  const gradeTag = content.tags.find(tag => tag.id.startsWith('grade-'));
+  const description = useMemo(() => {
+    // 设计稿为 14px/18px、黑色 60% 的正文；尽量复用数据里的 description，否则给一个合理 fallback
+    if (content.description && content.description.trim().length > 0) return content.description;
+    return '一年快开学轻松拿捏一年级，提前快规划好几个方向，梳理孩子学习方向👶开学不迷茫';
+  }, [content.description]);
 
-  // 根据标题生成资料说明
-  const getMaterialDescription = (title: string): string => {
-    if (title.includes('魔都') || title.includes('1-5年级') || title.includes('小数')) {
-      return '本资料包包含上海地区1-5年级数学学习重点内容，涵盖各年级核心知识点、常见题型和解题技巧。适合家长辅导和孩子自主学习使用，帮助孩子系统掌握小学数学基础知识，为后续学习打下坚实基础。\n 点击下方卡片下载';
+  const canShowTransferGuide = Boolean((content.fileCount && content.fileCount > 0) && onFileListClick);
+  const step1GuideKey = useMemo(() => `guide_transfer_step1_seen_${content.id}`, [content.id]);
+
+  const openFileList = () => {
+    try {
+      localStorage.setItem(step1GuideKey, 'seen');
+    } catch {
+      // ignore
     }
-    if (title.includes('三年级') && title.includes('思维训练')) {
-      return '专为三年级学生设计的数学思维训练题集，通过趣味性的题目设计，培养孩子的逻辑思维能力、空间想象能力和问题解决能力。题目由浅入深，循序渐进，适合不同水平的学生使用。';
-    }
-    if (title.includes('七天冲刺')) {
-      return '考前七天冲刺训练资料，精选高频考点和易错题型，帮助学生在短时间内快速提升成绩。包含每日训练计划、重点知识点梳理和模拟测试，是考前复习的必备资料。';
-    }
-    if (title.includes('小学') && title.includes('1-6') && title.includes('资料汇总')) {
-      return '小学1-6年级全科资料大汇总，涵盖语文、数学、英语等各学科的重点内容。包含知识点总结、练习题、试卷和复习资料，是小学阶段学习的完整资料库。';
-    }
-    if (title.includes('初中') && title.includes('文学常识')) {
-      return '初中语文文学常识全面汇总，系统梳理古代文学、现代文学和外国文学的重要知识点。包含作家作品、文学流派、名句名篇等内容，适合复习备考和日常学习使用。';
-    }
-    if (title.includes('上海课改')) {
-      return '上海新课改政策解读及相关教学资料，紧跟教育改革步伐。包含新课改背景、课程设置变化、教学方法和评价体系等内容，帮助教师和家长了解最新教育政策。';
-    }
-    // 默认说明
-    return '这是一份精心整理的学习资料，包含丰富的学习内容和实用的学习工具，适合学生和家长使用。资料内容全面，结构清晰，是学习和复习的好帮手。';
+    onFileListClick?.(mockFiles, content.title);
   };
 
+  const markGuideSeenAndClose = () => {
+    try {
+      localStorage.setItem(step1GuideKey, 'seen');
+    } catch {
+      // ignore
+    }
+    setShowTransferGuide(false);
+  };
+
+  // 新手引导：仅首次进入且存在“资料卡片”时显示
+  useEffect(() => {
+    if (!canShowTransferGuide) return;
+    let seen = false;
+    try {
+      seen = localStorage.getItem(step1GuideKey) === 'seen';
+    } catch {
+      seen = false;
+    }
+    if (seen) return;
+
+    // 等待布局完成后计算高亮位置
+    const t = window.setTimeout(() => {
+      const containerEl = pageContainerRef.current;
+      const targetEl = fileCardRef.current;
+      if (!containerEl || !targetEl) return;
+
+      const c = containerEl.getBoundingClientRect();
+      const r = targetEl.getBoundingClientRect();
+
+      const padding = 6; // 高亮外扩
+      const top = Math.max(0, r.top - c.top - padding);
+      const left = Math.max(0, r.left - c.left - padding);
+      const width = Math.min(c.width, r.width + padding * 2);
+      const height = r.height + padding * 2;
+
+      setGuideRect({ top, left, width, height });
+      // 先给一个默认位置，后续会根据气泡高度二次计算，确保不遮挡高亮区域
+      setGuideTooltipTop(12);
+      setShowTransferGuide(true);
+    }, 60);
+
+    return () => window.clearTimeout(t);
+  }, [canShowTransferGuide, content.id, step1GuideKey]);
+
+  // 二次定位气泡：测量气泡高度，确保不遮挡附件卡片高亮区域
+  useEffect(() => {
+    if (!showTransferGuide || !guideRect) return;
+    const containerEl = pageContainerRef.current;
+    const tipEl = tooltipRef.current;
+    if (!containerEl || !tipEl) return;
+
+    const containerHeight = containerEl.getBoundingClientRect().height;
+    const tipHeight = tipEl.getBoundingClientRect().height;
+
+    const margin = 12;
+    // 优先放在高亮上方
+    let top = guideRect.top - tipHeight - margin;
+    // 如果上方放不下，则放在高亮下方
+    if (top < margin) {
+      top = guideRect.top + guideRect.height + margin;
+    }
+    // 如果下方也放不下，则回退到顶部安全区（尽量不遮挡）
+    if (top + tipHeight + margin > containerHeight) {
+      top = margin;
+    }
+
+    // 若仍发生重叠（例如用户把附件卡片滚到很靠上），则强制放到高亮下方并留空
+    const overlaps = !(top + tipHeight + margin <= guideRect.top || top >= guideRect.top + guideRect.height + margin);
+    if (overlaps) {
+      const below = guideRect.top + guideRect.height + margin;
+      top = below + tipHeight + margin <= containerHeight ? below : margin;
+    }
+
+    setGuideTooltipTop(top);
+  }, [showTransferGuide, guideRect]);
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* 顶部导航栏 - 参考小红书布局 */}
-      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+    <div className="min-h-screen bg-white flex justify-center">
+      {/* 详情页严格按 375 宽设计稿实现 */}
+      <div ref={pageContainerRef} className="w-full max-w-[375px] bg-white min-h-screen relative">
+        {/* 顶栏（Status bar + Navbar） */}
+        <div className="sticky top-0 z-50 bg-white">
+          {/* Status bar 占位（44px） */}
+          <div className="h-[44px] flex items-center justify-between px-5" style={fontPingFang}>
+            <div className="text-[15px] font-semibold tracking-[-0.3px] text-black">9:41</div>
+            <div className="flex items-center gap-1 text-black opacity-90">
+              <div className="w-[17px] h-[10px] border-2 border-black rounded-sm" />
+              <div className="w-[15px] h-[10px] border-2 border-black rounded-sm opacity-70" />
+              <div className="relative w-[22px] h-[11px] border border-black/40 rounded-[2.667px]">
+                <div className="absolute left-[1px] top-[1px] bottom-[1px] right-[3px] bg-black rounded-[1.333px]" />
+              </div>
+              <div className="w-[1.3px] h-[4px] bg-black/70 rounded-r ml-[1px]" />
+            </div>
+          </div>
+
+          {/* Navbar（44px） */}
+          <div className="h-[44px] relative overflow-hidden">
             <button
               onClick={onBack}
-              className="touch-manipulation p-1 -ml-1"
+              className="absolute left-[16px] top-[10px] w-[24px] h-[24px] flex items-center justify-center touch-manipulation"
+              aria-label="返回"
             >
-              <ArrowLeft size={20} className="text-gray-900" />
+              <BackIcon />
             </button>
-            {content.authorAvatar && (
+
+            {/* 头像 + 圈子名（按设计稿：x=48, gap=4, avatar=28） */}
+            <div className="absolute left-[48px] top-1/2 -translate-y-1/2 flex items-center gap-[4px]">
               <button
                 onClick={() => {
                   if (onAvatarClick && !isMyPost) {
@@ -205,242 +324,269 @@ export default function MaterialDetail({
                   }
                 }}
                 className={isMyPost ? '' : 'touch-manipulation'}
+                aria-label="查看头像"
               >
                 <img
-                  src={getImageUrl(content.authorAvatar)}
+                  src={getImageUrl(content.authorAvatar || '')}
                   alt={content.author}
-                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                  className="w-[28px] h-[28px] rounded-full object-cover"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = 'none';
+                  }}
                 />
               </button>
-            )}
-            <span className="text-sm font-medium text-gray-900 truncate">{content.author}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {isMyPost ? (
-              <button 
-                onClick={() => setShowMenuDrawer(true)}
-                className="touch-manipulation p-1"
+              <div
+                className="text-[16px] font-medium text-[rgba(0,0,0,0.9)]"
+                style={fontPingFang}
               >
-                <MoreVertical size={18} className="text-gray-900" />
-              </button>
-            ) : (
-              <>
+                {content.author}
+              </div>
+            </div>
+
+            {/* 关注按钮 */}
+            {!isMyPost && (
                 <button
                   onClick={() => setIsFollowing(!isFollowing)}
-                  className={`touch-manipulation px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    isFollowing
-                      ? 'bg-gray-100 text-gray-700'
-                      : 'bg-[#FB2628] text-white'
-                  }`}
-                >
+                className="absolute left-[263px] top-[8px] h-[28px] w-[60px] bg-[#FB2628] rounded-[14px] px-[12px] flex items-center justify-center touch-manipulation"
+              >
+                <span className="text-[12px] font-medium leading-[18px] text-white" style={fontPingFang}>
                   {isFollowing ? '已关注' : '关注'}
+                </span>
                 </button>
-                <button className="touch-manipulation p-1">
-                  <Share2 size={18} className="text-gray-900" />
-                </button>
-              </>
             )}
-          </div>
+
+            {/* 更多 */}
+            <button
+              onClick={() => {
+                if (isMyPost) setShowMenuDrawer(true);
+              }}
+              className="absolute right-[16px] top-1/2 -translate-y-1/2 w-[24px] h-[24px] flex items-center justify-center touch-manipulation"
+              aria-label="更多"
+            >
+              <MoreDotsIcon />
+            </button>
         </div>
       </div>
 
-      {/* 封面区域 - 参考小红书布局 */}
-      <div className="relative w-full h-[400px] overflow-hidden bg-gray-100">
-        {/* 封面图片 */}
+        {/* 主内容 */}
+        <div className="pb-[120px]">
+          {/* Post image（500px） */}
+          <div className="w-full h-[500px] bg-[#F7F8FC] overflow-hidden">
         {content.cover && !coverError ? (
           <img
             src={getImageUrl(content.cover)}
             alt={content.title}
             className="w-full h-full object-cover"
-                      onError={() => {
-                        console.error('封面图片加载失败:', content.cover);
-                        setCoverError(true);
-                      }}
+                onError={() => setCoverError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-100">
-            <ImageIcon size={40} className="text-gray-400" />
-          </div>
-        )}
-      </div>
-
-      {/* 内容信息区域 */}
-      <div className="px-4 pt-4 pb-3 bg-white">
-        {/* 标题 - 参考小红书样式 */}
-        <h1 className="text-lg font-semibold text-gray-900 mb-3 leading-tight">
-          {content.title}
-        </h1>
-        
-        {/* 资料说明 */}
-        <div className="mb-3">
-          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-            {getMaterialDescription(content.title)}
-          </p>
-        </div>
-
-        {/* 文件入口卡片 - 放到日期上边，使用icon代替封面，只在有文件时显示 */}
-        {content.fileCount && content.fileCount > 0 && (
-          <div className="mb-4">
-            {mockFiles.length > 0 && (
-              <div
-                onClick={() => {
-                  if (onFileListClick) {
-                    onFileListClick(mockFiles, content.title);
-                  }
-                }}
-                className="bg-white border border-gray-200 rounded-lg overflow-hidden cursor-pointer touch-manipulation active:opacity-90 transition-opacity"
-              >
-                <div className="flex gap-3 p-2.5">
-                  {/* 文件图标 */}
-                  <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <File size={24} className="text-gray-500" />
-                  </div>
-                  
-                  {/* 文件信息 - 使用第一个文件的标题 */}
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <h3 className="text-sm font-medium text-gray-900 line-clamp-1 mb-0.5">
-                      {mockFiles[0].title || mockFiles[0].name}
-                    </h3>
-                    <p className="text-xs text-gray-500">
-                      包含 {content.fileCount} 个文件
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <div className="w-full h-full bg-[#F7F8FC]" />
             )}
           </div>
-        )}
 
-        {/* 时间和位置信息 */}
-        <div className="text-xs text-gray-400 mb-4">
-          {content.createdAt || '昨天 21:26'} {gradeTag && gradeTag.name}
-        </div>
+          {/* Divider dots（4 个 6x2） */}
+          <div className="flex justify-center mt-[8px]">
+            <div className="flex items-center gap-[1px]">
+              <div className="w-[6px] h-[2px] rounded-[1px] bg-[#FB2628]" />
+              <div className="w-[6px] h-[2px] rounded-[1px] bg-black/10" />
+              <div className="w-[6px] h-[2px] rounded-[1px] bg-black/10" />
+              <div className="w-[6px] h-[2px] rounded-[1px] bg-black/10" />
+            </div>
       </div>
 
-      {/* 评论区域 - 常驻显示 */}
-      <div className="px-4 pb-24 bg-white border-t border-gray-100">
-        {/* 评论数量 */}
-        <div className="text-sm text-gray-600 mb-4 pt-4">
-          共{commentCount}条评论
+          {/* 标题 + 正文 */}
+          <div className="px-[16px] pt-[16px]">
+            <div
+              className="text-[16px] font-semibold leading-[24px] text-[rgba(0,0,0,0.9)]"
+              style={fontPingFang}
+            >
+          {content.title}
+            </div>
+
+            <div
+              className="mt-[8px] text-[14px] font-normal leading-[18px] text-[rgba(0,0,0,0.6)] whitespace-pre-wrap"
+              style={fontPingFang}
+            >
+              {description}
         </div>
 
-        {/* 评论列表 */}
-        {mockComments.map((comment, index) => (
-          <div
-            key={comment.id}
-            className={`py-4 ${index < mockComments.length - 1 ? 'border-b border-gray-100' : ''}`}
-          >
-            <div className="flex items-start gap-3">
-                {comment.authorAvatar ? (
-                <img
-                  src={getImageUrl(comment.authorAvatar)}
-                  alt={comment.author}
-                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-sm font-medium">
-                    {comment.author.charAt(0)}
-                  </span>
+            {/* File info（可点） */}
+        {content.fileCount && content.fileCount > 0 && (
+              <button
+                ref={fileCardRef}
+                onClick={openFileList}
+                className="mt-[16px] w-full bg-[#F7F8FC] rounded-[8px] px-[12px] py-[8px] flex items-center gap-[12px] touch-manipulation"
+              >
+                <div className="w-[32px] h-[32px] flex items-center justify-center">
+                  <FolderIcon />
                 </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-gray-900">{comment.author}</span>
-                  <span className="text-xs text-gray-400">{comment.time}</span>
-                  {index === 0 && (
-                    <span className="text-xs text-[#FB2628] bg-[#FB2628]/10 px-2 py-0.5 rounded">首评</span>
-                  )}
-                </div>
-                <p className="text-sm text-gray-700 mb-2 leading-relaxed">{comment.content}</p>
-                <div className="flex items-center gap-4 mb-2">
-                  <button className="flex items-center gap-1 text-gray-500 touch-manipulation">
-                    <Heart size={14} className="text-gray-400" />
-                    <span className="text-xs text-gray-400">{comment.likes}</span>
-                  </button>
-                  <button className="text-xs text-gray-400 touch-manipulation">
-                    回复
-                  </button>
-                </div>
-                
-                {/* 回复列表 */}
-                {comment.replies && comment.replies.length > 0 && (
-                  <div className="ml-0 mt-2 space-y-2 pl-3 border-l-2 border-gray-100">
-                    {comment.replies.map((reply) => (
-                      <div key={reply.id} className="flex items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-medium text-gray-900">{reply.author}</span>
-                            <span className="text-xs text-gray-400">{reply.time}</span>
-                          </div>
-                          <p className="text-sm text-gray-700 leading-relaxed">{reply.content}</p>
-                          <div className="flex items-center gap-4 mt-1">
-                            <button className="flex items-center gap-1 text-gray-500 touch-manipulation">
-                              <Heart size={12} className="text-gray-400" />
-                              <span className="text-xs text-gray-400">{reply.likes}</span>
-                            </button>
-                            <button className="text-xs text-gray-400 touch-manipulation">
-                              回复
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                <div className="flex-1 min-w-0 text-left">
+                  <div
+                    className="text-[14px] font-medium leading-[22px] text-[rgba(0,0,0,0.9)] truncate"
+                    style={fontPingFang}
+                  >
+                    {content.title}
                   </div>
-                )}
-              </div>
+                  <div
+                    className="text-[12px] font-normal leading-[18px] text-black/40"
+                    style={fontPingFang}
+                  >
+                    包含{content.fileCount}个文件
+                  </div>
+                </div>
+              </button>
+            )}
+
+            {/* 时间 */}
+            <div
+              className="mt-[16px] text-[12px] font-normal leading-[18px] text-[rgba(0,0,0,0.6)]"
+              style={fontPingFang}
+            >
+              编辑于{content.createdAt || '3天前'}
             </div>
           </div>
-        ))}
-        <div className="text-center py-4 text-sm text-gray-400">
-          没有更多了
+        </div>
+
+        {/* 底部栏（62px + Home indicator 34px） */}
+        <div className="fixed left-0 right-0 bottom-0 z-40 flex justify-center">
+          <div className="w-full max-w-[375px]">
+            <div className="bg-white border-t border-black/5 h-[62px] flex items-center px-[16px]">
+              {/* 评论输入 */}
+              <button
+                className="bg-black/3 h-[44px] w-[173px] rounded-[12px] px-[16px] py-[10px] flex items-center gap-[4px] overflow-hidden touch-manipulation"
+                aria-label="说点什么吧"
+              >
+                <PencilIcon />
+                <span className="text-[14px] leading-[22px] text-black/40" style={fontPingFang}>
+                  说点什么吧
+                </span>
+              </button>
+
+              {/* 互动组 */}
+              <div className="ml-auto flex items-center gap-[12px]">
+                <button
+                  onClick={() => setLikeCount((v) => v + 1)}
+                  className="flex items-center gap-[2px] touch-manipulation"
+                  aria-label="点赞"
+                >
+                  <div className="opacity-90">
+                    <HeartOutlineIcon />
+                  </div>
+                  <span className="text-[12px] leading-[18px] text-[rgba(0,0,0,0.9)] w-[28px]" style={fontPingFang}>
+                    {likeCount}
+                  </span>
+                  </button>
+
+                <button
+                  onClick={() => setCommentCount((v) => v + 1)}
+                  className="flex items-center gap-[2px] touch-manipulation"
+                  aria-label="评论"
+                >
+                  <div className="opacity-90">
+                    <CommentIcon />
+                          </div>
+                  <span className="text-[12px] leading-[18px] text-[rgba(0,0,0,0.9)] w-[28px]" style={fontPingFang}>
+                    {commentCount}
+                  </span>
+                            </button>
+
+                <button
+                  onClick={() => {
+                    setShareCount((v) => v + 1);
+                    onShare?.();
+                  }}
+                  className="flex items-center gap-[2px] touch-manipulation"
+                  aria-label="分享"
+                >
+                  <div className="opacity-90">
+                    <ShareIcon />
+                  </div>
+                  <span className="text-[12px] leading-[18px] text-[rgba(0,0,0,0.9)] w-[28px]" style={fontPingFang}>
+                    {shareCount}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Home indicator（34px） */}
+            <div className="h-[34px] bg-white flex justify-center items-end pb-[8px]">
+              <div className="w-[134px] h-[5px] bg-black rounded-[100px]" />
+            </div>
         </div>
       </div>
       
-      {/* 底部操作栏 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-bottom z-40">
-        <div className="max-w-[480px] mx-auto px-4 py-3">
-          <div className="flex items-center gap-3">
-            {/* 左侧评论输入框 */}
-            <div className="flex-1 min-w-0 bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
-              <Edit size={16} className="text-gray-500 flex-shrink-0" />
-              <input
-                type="text"
-                placeholder="说点什么..."
-                className="flex-1 min-w-0 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none"
+        {/* 新手引导：资料转存 */}
+        {showTransferGuide && guideRect && (
+          <div className="fixed inset-0 z-[60] flex justify-center">
+            <div className="w-full max-w-[375px] relative">
+              {/* 蒙版（挖洞效果用 boxShadow 实现） */}
+              <div
+                className="absolute rounded-[12px]"
+                style={{
+                  top: guideRect.top,
+                  left: guideRect.left,
+                  width: guideRect.width,
+                  height: guideRect.height,
+                  boxShadow: '0 0 0 9999px rgba(0,0,0,0.55)',
+                  border: '2px solid rgba(255,255,255,0.9)',
+                  background: 'rgba(255,255,255,0.06)',
+                  pointerEvents: 'none',
+                }}
               />
-            </div>
-            
-            {/* 右侧操作按钮 */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
+
+              {/* 点击任意非高亮区域关闭（不遮挡高亮区域的点击） */}
               <button
-                onClick={() => {
-                  setIsLiked(!isLiked);
-                  setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-                }}
-                className="flex items-center gap-0.5 touch-manipulation"
-              >
-                <Heart size={20} className={isLiked ? 'text-[#FB2628] fill-[#FB2628]' : 'text-gray-600'} />
-                <span className="text-xs text-gray-600 whitespace-nowrap">{likeCount}</span>
-              </button>
+                className="absolute inset-0 bg-transparent"
+                onClick={markGuideSeenAndClose}
+                aria-label="关闭引导"
+              />
+
+              {/* 透明热区：点击高亮区域直接进入附件列表 */}
               <button
-                onClick={() => {
-                  setIsFavorited(!isFavorited);
-                  setFavoriteCount(prev => isFavorited ? prev - 1 : prev + 1);
+                className="absolute rounded-[12px] bg-transparent"
+                style={{
+                  top: guideRect.top,
+                  left: guideRect.left,
+                  width: guideRect.width,
+                  height: guideRect.height,
                 }}
-                className="flex items-center gap-0.5 touch-manipulation"
+                onClick={() => {
+                  markGuideSeenAndClose();
+                  openFileList();
+                }}
+                aria-label="查看附件"
+              />
+
+              {/* 提示气泡 */}
+              <div
+                className="absolute left-[16px] right-[16px]"
+                style={{ top: guideTooltipTop ?? 16 }}
               >
-                <Star size={20} className={isFavorited ? 'text-[#FB2628] fill-[#FB2628]' : 'text-gray-600'} />
-                <span className="text-xs text-gray-600 whitespace-nowrap">{favoriteCount}</span>
-              </button>
-              <button className="flex items-center gap-0.5 touch-manipulation">
-                <MessageCircle size={20} className="text-gray-600" />
-                <span className="text-xs text-gray-600 whitespace-nowrap">{commentCount}</span>
+                <div
+                  ref={tooltipRef}
+                  className="bg-white rounded-[14px] px-[14px] py-[12px]"
+                  style={{ boxShadow: '0px 10px 30px rgba(0,0,0,0.18)' }}
+                >
+                  <div className="text-[14px] font-semibold text-[rgba(0,0,0,0.9)]" style={fontPingFang}>
+                    点附件卡片查看文件
+                  </div>
+                  <div className="mt-[4px] text-[12px] leading-[18px] text-[rgba(0,0,0,0.6)]" style={fontPingFang}>
+                    进入后可一键转存到学习空间
+                  </div>
+                  <div className="mt-[10px] flex items-center justify-end gap-[10px]">
+                    <button
+                      onClick={markGuideSeenAndClose}
+                      className="px-[10px] py-[6px] rounded-full bg-black/5 text-[12px] text-[rgba(0,0,0,0.6)] touch-manipulation"
+                      style={fontPingFang}
+                    >
+                      我知道了
               </button>
             </div>
           </div>
         </div>
       </div>
+          </div>
+        )}
 
       {/* 帖子菜单抽屉 */}
       {isMyPost && (
@@ -458,6 +604,7 @@ export default function MaterialDetail({
           }}
         />
       )}
+    </div>
     </div>
   );
 }

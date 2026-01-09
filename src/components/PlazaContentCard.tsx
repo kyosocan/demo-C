@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ThumbsUp, Image as ImageIcon } from 'lucide-react';
+import { useState, useRef, useCallback } from 'react';
+import { Image as ImageIcon } from 'lucide-react';
 import { getImageUrl } from '../utils/imageUtils';
 
 interface PlazaContentCardProps {
@@ -13,22 +13,76 @@ interface PlazaContentCardProps {
   learningCount?: number;
   onClick?: () => void;
   variant?: 'default' | 'special';
+  onLongPress?: (position: { x: number; y: number }) => void;
 }
+
+// 心形点赞图标
+const HeartIcon = () => (
+  <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path 
+      d="M5.5 2.5C5.5 2.5 4.5 1 3 1C1.5 1 0.5 2 0.5 3.5C0.5 6 5.5 9.5 5.5 9.5C5.5 9.5 10.5 6 10.5 3.5C10.5 2 9.5 1 8 1C6.5 1 5.5 2.5 5.5 2.5Z" 
+      stroke="rgba(0,0,0,0.9)" 
+      strokeWidth="1" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      fill="none"
+    />
+  </svg>
+);
 
 export default function PlazaContentCard({
   title,
-  subtitle,
+  subtitle: _subtitle,
   author,
   authorAvatar,
-  date,
+  date: _date,
   likes,
   cover,
   learningCount: _learningCount,
   onClick,
   variant = 'default',
+  onLongPress,
 }: PlazaContentCardProps) {
   const [coverError, setCoverError] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const isLongPress = useRef(false);
+
+  // 长按处理
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    isLongPress.current = false;
+    const touch = e.touches[0];
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    
+    longPressTimer.current = setTimeout(() => {
+      isLongPress.current = true;
+      const popupX = touch.clientX;
+      const popupY = rect.top;
+      onLongPress?.({ x: popupX, y: popupY });
+    }, 1000);
+  }, [onLongPress]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleTouchMove = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleClick = useCallback(() => {
+    if (isLongPress.current) {
+      isLongPress.current = false;
+      return;
+    }
+    onClick?.();
+  }, [onClick]);
 
   // 获取用户头像首字母作为占位符
   const getAvatarPlaceholder = () => {
@@ -38,24 +92,36 @@ export default function PlazaContentCard({
     return '?';
   };
 
+  // 格式化点赞数
+  const formatLikes = (count: number) => {
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(0)}k`;
+    }
+    return count.toString();
+  };
+
+  const cardStyle = {
+    boxShadow: '0px 2px 20px 0px rgba(0,0,0,0.04)',
+  };
+
   if (variant === 'special') {
-    // 特殊样式卡片（带渐变背景）
     return (
       <div
-        onClick={onClick}
-        className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer touch-manipulation active:opacity-90 transition-opacity relative"
+        onClick={handleClick}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onTouchMove={handleTouchMove}
+        className="bg-white rounded-[8px] overflow-hidden cursor-pointer touch-manipulation active:opacity-90 transition-opacity"
+        style={cardStyle}
       >
-        {/* 封面图片 */}
-        <div className="relative w-full h-[167px] overflow-hidden bg-gradient-to-br from-yellow-100 to-orange-100">
+        {/* 封面图片 - 167x167 等比 */}
+        <div className="relative w-full aspect-square overflow-hidden">
           {cover && !coverError ? (
             <img
               src={getImageUrl(cover)}
               alt={title}
               className="w-full h-full object-cover"
-              onError={(_e) => {
-                console.error('图片加载失败:', cover);
-                setCoverError(true);
-              }}
+              onError={() => setCoverError(true)}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-yellow-100 to-orange-100">
@@ -65,46 +131,48 @@ export default function PlazaContentCard({
         </div>
         
         {/* 内容信息 */}
-        <div className="p-3 flex flex-col gap-1.5">
-          {/* 标题 */}
-          <h3 className="text-sm font-medium text-[#393548] line-clamp-2 leading-6">
+        <div className="px-3 pt-2 pb-4 flex flex-col gap-[10px]">
+          <h3 
+            className="text-[14px] font-medium text-[rgba(0,0,0,0.9)] line-clamp-2"
+            style={{ fontFamily: 'PingFang SC, sans-serif', lineHeight: 'normal' }}
+          >
             {title}
           </h3>
           
-          {/* 副标题 */}
-          {subtitle && (
-            <p className="text-xs text-[#00000099] line-clamp-1">{subtitle}</p>
-          )}
-          
           {/* 作者和点赞 */}
-          <div className="flex items-center justify-between mt-1">
-            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1 flex-1 min-w-0">
               {authorAvatar && !avatarError ? (
                 <img
                   src={getImageUrl(authorAvatar)}
                   alt={author}
-                  className="w-3.75 h-3.75 rounded-full object-cover flex-shrink-0"
-                  onError={(_e) => {
-                    console.error('头像加载失败:', authorAvatar);
-                    setAvatarError(true);
-                  }}
+                  className="w-5 h-5 rounded-full object-cover flex-shrink-0"
+                  onError={() => setAvatarError(true)}
                 />
               ) : (
-                <div className="w-3.75 h-3.75 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[8px] text-white font-medium">
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0">
+                  <span className="text-[10px] text-white font-medium">
                     {getAvatarPlaceholder()}
                   </span>
                 </div>
               )}
-              <span className="text-xs text-[#000000E6] truncate">{author}</span>
-              {date && (
-                <span className="text-xs text-[#00000066] ml-1">{date}</span>
-              )}
+              <span 
+                className="text-[12px] font-normal text-[rgba(0,0,0,0.9)] truncate"
+                style={{ fontFamily: 'PingFang SC, sans-serif', lineHeight: '18px' }}
+              >
+                {author}
+              </span>
             </div>
             
+            {/* 点赞 */}
             <div className="flex items-center gap-1 flex-shrink-0">
-              <ThumbsUp size={16} className="text-[#000000E6]" />
-              <span className="text-xs text-[#000000E6]">{likes}</span>
+              <HeartIcon />
+              <span 
+                className="text-[12px] font-normal text-[rgba(0,0,0,0.9)]"
+                style={{ fontFamily: 'PingFang SC, sans-serif', lineHeight: '18px' }}
+              >
+                {likes > 0 ? formatLikes(likes) : '赞'}
+              </span>
             </div>
           </div>
         </div>
@@ -114,21 +182,22 @@ export default function PlazaContentCard({
 
   return (
     <div
-      onClick={onClick}
-      className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer touch-manipulation active:opacity-90 transition-opacity"
+      onClick={handleClick}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchMove}
+      className="bg-white rounded-[8px] overflow-hidden cursor-pointer touch-manipulation active:opacity-90 transition-opacity"
+      style={cardStyle}
     >
-      {/* 封面图片 */}
-      <div className="relative w-full h-[167px] overflow-hidden bg-gray-200">
+      {/* 封面图片 - 167x167 等比 */}
+      <div className="relative w-full aspect-square overflow-hidden">
         {cover && !coverError ? (
-            <img
-              src={getImageUrl(cover)}
-              alt={title}
-              className="w-full h-full object-cover"
-              onError={(_e) => {
-                console.error('图片加载失败:', cover);
-                setCoverError(true);
-              }}
-            />
+          <img
+            src={getImageUrl(cover)}
+            alt={title}
+            className="w-full h-full object-cover"
+            onError={() => setCoverError(true)}
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-200">
             <ImageIcon size={40} className="text-gray-400" />
@@ -137,50 +206,51 @@ export default function PlazaContentCard({
       </div>
       
       {/* 内容信息 */}
-      <div className="p-3 flex flex-col gap-1.5">
-        {/* 标题 */}
-        <h3 className="text-sm font-medium text-[#000000E6] line-clamp-2 leading-6">
+      <div className="px-3 pt-2 pb-4 flex flex-col gap-[10px]">
+        <h3 
+          className="text-[14px] font-medium text-[rgba(0,0,0,0.9)] line-clamp-2"
+          style={{ fontFamily: 'PingFang SC, sans-serif', lineHeight: 'normal' }}
+        >
           {title}
         </h3>
         
-          {/* 副标题 */}
-          {subtitle && (
-            <p className="text-xs text-[#00000099] line-clamp-1">{subtitle}</p>
-          )}
-          
-          {/* 作者和点赞 */}
-          <div className="flex items-center justify-between mt-1">
-            <div className="flex items-center gap-1.5 flex-1 min-w-0">
-              {authorAvatar && !avatarError ? (
-                <img
-                  src={getImageUrl(authorAvatar)}
-                  alt={author}
-                  className="w-3.75 h-3.75 rounded-full object-cover flex-shrink-0"
-                  onError={(_e) => {
-                    console.error('头像加载失败:', authorAvatar);
-                    setAvatarError(true);
-                  }}
-                />
-              ) : (
-                <div className="w-3.75 h-3.75 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[8px] text-white font-medium">
-                    {getAvatarPlaceholder()}
-                  </span>
-                </div>
-              )}
-              <span className="text-xs text-[#000000E6] truncate">{author}</span>
-              {date && (
-                <span className="text-xs text-[#00000066] ml-1">{date}</span>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <ThumbsUp size={16} className="text-[#000000E6]" />
-              <span className="text-xs text-[#000000E6]">{likes}</span>
-            </div>
+        {/* 作者和点赞 */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1 flex-1 min-w-0">
+            {authorAvatar && !avatarError ? (
+              <img
+                src={getImageUrl(authorAvatar)}
+                alt={author}
+                className="w-5 h-5 rounded-full object-cover flex-shrink-0"
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0">
+                <span className="text-[10px] text-white font-medium">
+                  {getAvatarPlaceholder()}
+                </span>
+              </div>
+            )}
+            <span 
+              className="text-[12px] font-normal text-[rgba(0,0,0,0.9)] truncate"
+              style={{ fontFamily: 'PingFang SC, sans-serif', lineHeight: '18px' }}
+            >
+              {author}
+            </span>
           </div>
+          
+          {/* 点赞 */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <HeartIcon />
+            <span 
+              className="text-[12px] font-normal text-[rgba(0,0,0,0.9)]"
+              style={{ fontFamily: 'PingFang SC, sans-serif', lineHeight: '18px' }}
+            >
+              {likes > 0 ? formatLikes(likes) : '赞'}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-

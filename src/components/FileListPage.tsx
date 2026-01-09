@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, MoreVertical, FileText, Folder, Save, Printer, Download, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface FileItem {
   id: string;
@@ -16,194 +15,248 @@ interface FileListPageProps {
 }
 
 export default function FileListPage({ files, title, onBack }: FileListPageProps) {
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
-  const menuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  // 设计稿：每行右侧为“转存到学习空间”云朵按钮
+  const saveBtnRef = useRef<HTMLButtonElement | null>(null);
 
-  // 点击外部关闭菜单
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (openMenuId) {
-        const menuElement = menuRefs.current[openMenuId];
-        if (menuElement && !menuElement.contains(event.target as Node)) {
-          setOpenMenuId(null);
-        }
-      }
-    };
+  // 第二层引导：进入文件列表后，引导“转存到学习空间”
+  const [showTransferGuide, setShowTransferGuide] = useState(false);
+  const [guideRect, setGuideRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number } | null>(null);
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [openMenuId]);
+  const guideFileId = useMemo(() => files[0]?.id ?? null, [files]);
 
-  const handleMenuClick = (fileId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    setOpenMenuId(openMenuId === fileId ? null : fileId);
-  };
-
-  const handleMenuAction = (action: string, fileId: string) => {
-    console.log(`执行操作: ${action}，文件ID: ${fileId}`);
-    setOpenMenuId(null);
-    
-    if (action === 'save') {
-      // 转存到学习空间
-      console.log('转存到学习空间:', fileId);
-      // 这里可以添加转存逻辑
-    } else if (action === 'download') {
-      // 下载文件
-      console.log('下载文件:', fileId);
-      // 这里可以添加下载逻辑
-      const file = files.find(f => f.id === fileId);
-      if (file) {
-        // 实际项目中这里应该调用下载 API
-        // 这里只是示例，实际需要根据文件 URL 进行下载
-        console.log('开始下载:', file.name);
-      }
-    } else if (action === 'print') {
-      // 打印
-      console.log('打印:', fileId);
-      // 这里可以添加打印逻辑
-      window.print();
+  const closeGuideAndMarkSeen = () => {
+    try {
+      localStorage.setItem('guide_transfer_step2_seen', 'seen');
+    } catch {
+      // ignore
     }
+    setShowTransferGuide(false);
   };
 
-  const handleFileClick = (file: FileItem) => {
-    // 点击文件项进行预览
-    setPreviewFile(file);
+  const recomputeGuideTarget = () => {
+    const targetEl = saveBtnRef.current;
+    if (!targetEl) return;
+    const r = targetEl.getBoundingClientRect();
+    const pad = 6;
+    const top = Math.max(8, r.top - pad);
+    const left = Math.max(8, r.left - pad);
+    const width = r.width + pad * 2;
+    const height = r.height + pad * 2;
+    setGuideRect({ top, left, width, height });
+
+    // tooltip 默认放在高亮下方（避免遮挡目标）
+    const tooltipTop = Math.min(window.innerHeight - 120, top + height + 10);
+    const tooltipLeft = Math.min(Math.max(16, left), window.innerWidth - 260);
+    setTooltipPos({ top: tooltipTop, left: tooltipLeft });
   };
+
+  // 初始化第二层引导（仅首次）
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = localStorage.getItem('guide_transfer_step2_seen') === 'seen';
+    } catch {
+      seen = false;
+    }
+    if (seen) return;
+    if (!files || files.length === 0) return;
+
+    // 首次进入文件列表页就展示第二层引导
+    const t = window.setTimeout(() => {
+      setShowTransferGuide(true);
+      setGuideStep('openMenu');
+    }, 60);
+    return () => window.clearTimeout(t);
+  }, [files]);
+
+  // 根据步骤更新高亮位置
+  useEffect(() => {
+    if (!showTransferGuide) return;
+    const t = window.setTimeout(() => recomputeGuideTarget(), 0);
+    const onResize = () => recomputeGuideTarget();
+    window.addEventListener('resize', onResize);
+    window.addEventListener('scroll', onResize, true);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onResize, true);
+    };
+  }, [showTransferGuide]);
+
+  const handleTransferClick = (fileId: string) => {
+    // 转存到学习空间（占位：业务接入点）
+    console.log('转存到学习空间:', fileId);
+    if (showTransferGuide) closeGuideAndMarkSeen();
+  };
+
+  const BackIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M15 6L9 12L15 18" stroke="rgba(0,0,0,0.85)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+
+  const PdfIcon = () => (
+    <div className="w-[36px] h-[36px] bg-[#E94B4B] rounded-[4px] flex items-center justify-center flex-shrink-0">
+      <span className="text-white text-[12px] font-bold leading-none">PDF</span>
+    </div>
+  );
+
+  const CloudSaveIcon = ({ active = false }: { active?: boolean }) => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path
+        d="M6.8 14.5H14.2C15.6 14.5 16.8 13.3 16.8 11.9C16.8 10.7 16 9.7 14.9 9.4C14.6 7.3 12.8 5.7 10.6 5.7C8.7 5.7 7.1 6.8 6.4 8.5C5 8.7 3.9 9.9 3.9 11.4C3.9 13.1 5.2 14.5 6.8 14.5Z"
+        stroke="rgba(0,0,0,1)"
+        strokeOpacity={active ? 0.9 : 0.4}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10.4 12.9V9.2"
+        stroke="rgba(0,0,0,1)"
+        strokeOpacity={active ? 0.9 : 0.4}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M8.9 10.6L10.4 9.1L11.9 10.6"
+        stroke="rgba(0,0,0,1)"
+        strokeOpacity={active ? 0.9 : 0.4}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* 顶部导航栏 */}
-      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <button
-              onClick={onBack}
-              className="touch-manipulation p-1 -ml-1"
-            >
-              <ArrowLeft size={20} className="text-gray-900" />
-            </button>
-            <span className="text-sm font-medium text-gray-900 truncate">{title}</span>
-          </div>
+    <div className="w-[375px] min-h-screen bg-[#F4F5FA] relative overflow-hidden">
+      {/* Status bar 占位（44px） */}
+      <div className="h-[44px]" />
+
+      {/* 顶部 tab（44px） */}
+      <div className="h-[44px] relative">
+        <button
+          onClick={onBack}
+          className="absolute left-[24px] top-[10px] w-[24px] h-[24px] flex items-center justify-center touch-manipulation"
+          aria-label="返回"
+        >
+          <BackIcon />
+        </button>
+        <div
+          className="absolute left-1/2 top-[14px] -translate-x-1/2 text-[16px] leading-[16px] font-medium text-[rgba(0,0,0,0.85)]"
+          style={{ fontFamily: 'PingFang SC, sans-serif' }}
+        >
+          {title}
         </div>
       </div>
 
-      {/* 文件列表 */}
-      <div className="px-4 py-4">
-        <div className="space-y-0">
+      {/* 文件列表容器（x=16, y=104, w=343, gap=16） */}
+      <div className="absolute left-[16px] top-[104px] w-[343px]">
+        <div className="flex flex-col gap-[16px]">
           {files.map((file) => (
-            <div
-              key={file.id}
-              className="flex items-center justify-between py-3 border-b border-gray-100 relative"
-            >
-              <div 
-                className="flex items-center gap-3 flex-1 cursor-pointer touch-manipulation"
-                onClick={() => handleFileClick(file)}
-              >
-                {file.type === 'folder' ? (
-                  <Folder size={24} className="text-yellow-500" />
-                ) : file.type === 'pdf' ? (
-                  <div className="w-6 h-6 bg-[#FB2628] rounded flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-xs">P</span>
+            <div key={file.id} className="w-full">
+              <div className="flex items-center gap-[24px]">
+                {/* 文件信息 */}
+                <div className="flex flex-1 min-w-0 items-center gap-[12px]">
+                  <div className="w-[36px] h-[36px]">
+                    <PdfIcon />
                   </div>
-                ) : (
-                  <FileText size={24} className="text-gray-400" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 line-clamp-1">{file.name}</div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-gray-400">{file.date}</span>
-                    {file.size && <span className="text-xs text-gray-400">{file.size}</span>}
+                  <div className="flex-1 min-w-0">
+                    <div
+                      className="text-[14px] leading-[24px] font-medium text-[rgba(0,0,0,0.9)] truncate"
+                      style={{ fontFamily: 'PingFang SC, sans-serif' }}
+                    >
+                      {file.name}
+                    </div>
+                    <div
+                      className="text-[12px] leading-[18px] font-normal text-black/40 truncate"
+                      style={{ fontFamily: 'PingFang SC, sans-serif' }}
+                    >
+                      {file.date}
+                      {file.size ? ` ｜ ${file.size}` : ''}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="relative">
+
+                {/* 右侧转存按钮（云朵） */}
                 <button
-                  onClick={(e) => handleMenuClick(file.id, e)}
-                  className="touch-manipulation"
+                  onClick={() => handleTransferClick(file.id)}
+                  className="w-[20px] h-[20px] flex items-center justify-center touch-manipulation"
+                  aria-label="转存到学习空间"
+                  ref={file.id === guideFileId ? saveBtnRef : undefined}
                 >
-                  <MoreVertical size={18} className="text-gray-400" />
+                  <CloudSaveIcon />
                 </button>
-                {openMenuId === file.id && (
-                  <div
-                    ref={(el) => (menuRefs.current[file.id] = el)}
-                    className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 min-w-[160px]"
-                  >
-                    <button
-                      onClick={() => handleMenuAction('save', file.id)}
-                      className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 touch-manipulation"
-                    >
-                      <Save size={16} className="text-gray-400" />
-                      <span>转存到学习空间</span>
-                    </button>
-                    <button
-                      onClick={() => handleMenuAction('download', file.id)}
-                      className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 touch-manipulation"
-                    >
-                      <Download size={16} className="text-gray-400" />
-                      <span>下载</span>
-                    </button>
-                    <button
-                      onClick={() => handleMenuAction('print', file.id)}
-                      className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 touch-manipulation"
-                    >
-                      <Printer size={16} className="text-gray-400" />
-                      <span>打印</span>
-                    </button>
-                  </div>
-                )}
               </div>
+
+              {/* 分割线 */}
+              <div className="h-px bg-black/10 mt-[16px]" />
             </div>
           ))}
-          <div className="text-center py-4 text-sm text-gray-400">
-            没有更多了
-          </div>
         </div>
       </div>
 
-      {/* 文件预览模态框 */}
-      {previewFile && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col">
-            {/* 预览头部 */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900 truncate">{previewFile.name}</h3>
-              <button
-                onClick={() => setPreviewFile(null)}
-                className="touch-manipulation p-1"
-              >
-                <X size={20} className="text-gray-600" />
-              </button>
-            </div>
-            
-            {/* 预览内容 */}
-            <div className="flex-1 overflow-auto p-4">
-              {previewFile.type === 'pdf' ? (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 rounded-lg">
-                  <FileText size={64} className="text-gray-400 mb-4" />
-                  <p className="text-gray-600 mb-2">{previewFile.name}</p>
-                  <p className="text-sm text-gray-400">
-                    PDF 预览功能（实际项目中可以集成 PDF.js 等库）
-                  </p>
-                  <div className="mt-4 px-4 py-2 bg-[#FB2628] text-white rounded-lg cursor-pointer touch-manipulation">
-                    下载文件
-                  </div>
-                </div>
-              ) : previewFile.type === 'folder' ? (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 rounded-lg">
-                  <Folder size={64} className="text-yellow-500 mb-4" />
-                  <p className="text-gray-600">{previewFile.name}</p>
-                  <p className="text-sm text-gray-400 mt-2">文件夹预览</p>
-                </div>
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 rounded-lg">
-                  <FileText size={64} className="text-gray-400 mb-4" />
-                  <p className="text-gray-600">{previewFile.name}</p>
-                  <p className="text-sm text-gray-400 mt-2">文件预览</p>
-                </div>
-              )}
+      {/* 第二层新手引导：文件列表页转存 */}
+      {showTransferGuide && guideRect && tooltipPos && (
+        <div className="fixed inset-0 z-[60]">
+          {/* 背景遮罩（点击关闭），不阻挡高亮区域交互 */}
+          <button className="absolute inset-0 bg-black/55" onClick={closeGuideAndMarkSeen} aria-label="关闭引导" />
+
+          {/* 高亮框 */}
+          <div
+            className="absolute rounded-[12px]"
+            style={{
+              top: guideRect.top,
+              left: guideRect.left,
+              width: guideRect.width,
+              height: guideRect.height,
+              boxShadow: '0 0 0 9999px rgba(0,0,0,0.55)',
+              border: '2px solid rgba(255,255,255,0.9)',
+              background: 'rgba(255,255,255,0.06)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* 透明热区：点击云朵按钮即可转存（同时关闭引导） */}
+          <button
+            className="absolute rounded-[12px] bg-transparent"
+            style={{
+              top: guideRect.top,
+              left: guideRect.left,
+              width: guideRect.width,
+              height: guideRect.height,
+            }}
+            onClick={() => {
+              if (guideFileId) handleTransferClick(guideFileId);
+            }}
+            aria-label="转存到学习空间"
+          />
+
+          {/* 提示气泡 */}
+          <div
+            className="absolute w-[260px]"
+            style={{
+              top: tooltipPos.top,
+              left: tooltipPos.left,
+            }}
+          >
+            <div className="bg-white rounded-[14px] px-[12px] py-[10px]" style={{ boxShadow: '0px 10px 30px rgba(0,0,0,0.18)' }}>
+              <div className="text-[13px] font-semibold text-[rgba(0,0,0,0.9)]" style={{ fontFamily: 'PingFang SC, sans-serif' }}>
+                点云朵一键转存
+              </div>
+              <div className="mt-[4px] text-[12px] leading-[18px] text-[rgba(0,0,0,0.6)]" style={{ fontFamily: 'PingFang SC, sans-serif' }}>
+                转存后会保存到学习空间的「社区」文件夹中
+              </div>
+              <div className="mt-[8px] flex justify-end">
+                <button
+                  onClick={closeGuideAndMarkSeen}
+                  className="px-[10px] py-[6px] rounded-full bg-black/5 text-[12px] text-[rgba(0,0,0,0.6)] touch-manipulation"
+                  style={{ fontFamily: 'PingFang SC, sans-serif' }}
+                >
+                  我知道了
+                </button>
+              </div>
             </div>
           </div>
         </div>

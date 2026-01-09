@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
-import { ArrowLeft, FolderPlus, FilePlus, X, Smartphone, MessageCircle as WeChatIcon, Folder } from 'lucide-react';
+import { ArrowLeft, FolderPlus, FilePlus, X, Folder, Loader2, CheckCircle2, AlertCircle, Cloud } from 'lucide-react';
+
+type UploadStatus = 'uploading' | 'success' | 'failed';
 
 interface FileItem {
   id: string;
@@ -9,6 +11,8 @@ interface FileItem {
   size?: string;
   title?: string;
   cover?: string;
+  uploadStatus?: UploadStatus;
+  uploadProgress?: number;
 }
 
 interface FolderData {
@@ -24,6 +28,7 @@ interface EditPostPageProps {
   onBack: () => void;
   onPublish: (data?: { title: string; body: string; folders: FolderData[] }) => void;
   onSaveDraft: () => void;
+  onOpenLearningSpace?: () => void;
 }
 
 export default function EditPostPage({
@@ -34,13 +39,66 @@ export default function EditPostPage({
   onBack,
   onPublish,
   onSaveDraft,
+  onOpenLearningSpace,
 }: EditPostPageProps) {
   const [title, setTitle] = React.useState(initialTitle);
   const [body, setBody] = React.useState(initialBody);
   const [showFolderEditor, setShowFolderEditor] = React.useState(false);
-  const [folderName, setFolderName] = React.useState('');
-  const [files, setFiles] = React.useState<FileItem[]>([]);
   const [addedFolders, setAddedFolders] = React.useState<FolderData[]>(initialFolders);
+
+  // 更新文件状态的辅助函数
+  const updateFileStatus = (fileId: string, updates: Partial<FileItem>) => {
+    // 更新 addedFolders 中的文件
+    setAddedFolders(prevFolders => 
+      prevFolders.map(folder => ({
+        ...folder,
+        files: folder.files.map(file => 
+          file.id === fileId ? { ...file, ...updates } : file
+        )
+      }))
+    );
+  };
+
+  // 模拟文件上传
+  const uploadFile = async (fileId: string) => {
+    // 设置上传中状态
+    updateFileStatus(fileId, { uploadStatus: 'uploading', uploadProgress: 0 });
+
+    let currentProgress = 0;
+
+    // 模拟上传进度
+    const progressInterval = setInterval(() => {
+      currentProgress = Math.min(currentProgress + Math.random() * 30, 90);
+      updateFileStatus(fileId, { uploadProgress: currentProgress });
+    }, 200);
+
+    try {
+      // 模拟上传延迟（1-3秒）
+      const uploadTime = 1000 + Math.random() * 2000;
+      await new Promise(resolve => setTimeout(resolve, uploadTime));
+
+      // 模拟10%的失败率
+      const shouldFail = Math.random() < 0.1;
+
+      clearInterval(progressInterval);
+
+      if (shouldFail) {
+        // 上传失败
+        updateFileStatus(fileId, { uploadStatus: 'failed', uploadProgress: 0 });
+      } else {
+        // 上传成功
+        updateFileStatus(fileId, { uploadStatus: 'success', uploadProgress: 100 });
+      }
+    } catch (error) {
+      clearInterval(progressInterval);
+      updateFileStatus(fileId, { uploadStatus: 'failed', uploadProgress: 0 });
+    }
+  };
+
+  // 重试上传
+  const retryUpload = (fileId: string) => {
+    uploadFile(fileId);
+  };
 
   // 当初始数据变化时，更新表单（用于编辑不同帖子时）
   useEffect(() => {
@@ -115,38 +173,89 @@ export default function EditPostPage({
           </button>
         </div>
 
-        {/* 已添加的文件夹列表 */}
-        {addedFolders.length > 0 && (
+        {/* 已添加的文件列表 */}
+        {addedFolders.length > 0 && addedFolders.some(f => f.files.length > 0) && (
           <div className="mt-4 space-y-3">
-            <div className="text-sm font-medium text-gray-700 mb-2">已添加的文件夹</div>
+            <div className="text-sm font-medium text-gray-700 mb-2">已关联的文件</div>
             {addedFolders.map((folder, index) => (
-              <div
-                key={index}
-                className="bg-white border border-gray-200 rounded-xl p-4"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <Folder size={20} className="text-yellow-500" />
-                  <span className="text-base font-medium text-gray-900">{folder.name}</span>
-                  <button
-                    onClick={() => {
-                      setAddedFolders(addedFolders.filter((_, i) => i !== index));
-                    }}
-                    className="ml-auto p-1 text-gray-400 hover:text-red-500 transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                {folder.files.length > 0 && (
-                  <div className="ml-8 space-y-1">
-                    {folder.files.map((file, fileIndex) => (
-                      <div key={file.id || fileIndex} className="text-sm text-gray-600 flex items-center gap-2">
-                        <FilePlus size={14} className="text-gray-400" />
-                        <span className="truncate">{file.title || file.name}</span>
+              folder.files.length > 0 && (
+                <div key={index} className="space-y-2">
+                  {folder.files.map((file, fileIndex) => (
+                    <div 
+                      key={file.id || fileIndex} 
+                      className={`flex items-center justify-between px-3 py-2 rounded-lg ${
+                        file.uploadStatus === 'uploading' 
+                          ? 'bg-blue-50 border border-blue-200' 
+                          : file.uploadStatus === 'success'
+                          ? 'bg-green-50 border border-green-200'
+                          : file.uploadStatus === 'failed'
+                          ? 'bg-red-50 border border-red-200'
+                          : 'bg-gray-50 border border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <FilePlus size={14} className={`flex-shrink-0 ${
+                          file.uploadStatus === 'uploading' 
+                            ? 'text-blue-500' 
+                            : file.uploadStatus === 'success'
+                            ? 'text-green-500'
+                            : file.uploadStatus === 'failed'
+                            ? 'text-red-500'
+                            : 'text-gray-400'
+                        }`} />
+                        <span className={`truncate flex-1 text-sm ${
+                          file.uploadStatus === 'uploading' 
+                            ? 'text-blue-700' 
+                            : file.uploadStatus === 'success'
+                            ? 'text-green-700'
+                            : file.uploadStatus === 'failed'
+                            ? 'text-red-700'
+                            : 'text-gray-700'
+                        }`}>
+                          {file.title || file.name}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {file.uploadStatus === 'uploading' && (
+                          <div className="flex items-center gap-1.5 text-blue-500">
+                            <Loader2 size={14} className="animate-spin" />
+                            <span className="text-xs font-medium">
+                              {file.uploadProgress ? Math.round(file.uploadProgress) : 0}%
+                            </span>
+                          </div>
+                        )}
+                        {file.uploadStatus === 'success' && (
+                          <CheckCircle2 size={16} className="text-green-500" />
+                        )}
+                        {file.uploadStatus === 'failed' && (
+                          <div className="flex items-center gap-1.5">
+                            <AlertCircle size={16} className="text-red-500" />
+                            <button
+                              onClick={() => retryUpload(file.id)}
+                              className="text-xs text-red-600 hover:text-red-700 hover:underline font-medium"
+                            >
+                              重试
+                            </button>
+                          </div>
+                        )}
+                        <button
+                          onClick={() => {
+                            const newFolders = addedFolders.map((f, i) => 
+                              i === index 
+                                ? { ...f, files: f.files.filter((_, fi) => fi !== fileIndex) }
+                                : f
+                            ).filter(f => f.files.length > 0);
+                            setAddedFolders(newFolders);
+                          }}
+                          className="p-1 text-gray-400 hover:text-red-500 transition-colors ml-1"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
             ))}
           </div>
         )}
@@ -193,7 +302,7 @@ export default function EditPostPage({
             <div className="p-6">
               {/* 标题栏 */}
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">添加文件夹</h3>
+                <h3 className="text-lg font-semibold text-gray-900">关联学习空间文件</h3>
                 <button
                   onClick={() => setShowFolderEditor(false)}
                   className="p-2 -mr-2 text-gray-500 hover:text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
@@ -202,116 +311,32 @@ export default function EditPostPage({
                 </button>
               </div>
 
-              {/* 文件夹名称输入 */}
+              {/* 关联学习空间文件选项 */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  文件夹名称
-                </label>
-                <input
-                  type="text"
-                  placeholder="请输入文件夹名称"
-                  value={folderName}
-                  onChange={(e) => setFolderName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  autoFocus
-                />
+                <button
+                  onClick={() => {
+                    setShowFolderEditor(false);
+                    if (onOpenLearningSpace) {
+                      onOpenLearningSpace();
+                    }
+                  }}
+                  className="w-full flex items-center justify-center gap-3 px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                >
+                  <Cloud size={24} className="text-blue-600" />
+                  <span className="text-base font-medium">关联学习空间文件</span>
+                </button>
               </div>
 
-              {/* 导入文件选项 */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  导入文件
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => {
-                      // 可以添加手机文件选择逻辑
-                      const newFile: FileItem = {
-                        id: Date.now().toString(),
-                        name: `手机文件${files.length + 1}.pdf`,
-                        type: 'pdf',
-                        date: new Date().toISOString().split('T')[0],
-                        size: '2.5MB',
-                        title: `手机文件${files.length + 1}.pdf`,
-                      };
-                      setFiles([...files, newFile]);
-                    }}
-                    className="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                  >
-                    <Smartphone size={24} className="text-blue-600" />
-                    <span className="text-sm font-medium">导入手机文件</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      // 可以添加微信文件选择逻辑
-                      const newFile: FileItem = {
-                        id: Date.now().toString(),
-                        name: `微信文件${files.length + 1}.pdf`,
-                        type: 'pdf',
-                        date: new Date().toISOString().split('T')[0],
-                        size: '2.5MB',
-                        title: `微信文件${files.length + 1}.pdf`,
-                      };
-                      setFiles([...files, newFile]);
-                    }}
-                    className="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                  >
-                    <WeChatIcon size={24} className="text-green-600" />
-                    <span className="text-sm font-medium">导入微信文件</span>
-                  </button>
-                </div>
-              </div>
 
-              {/* 文件列表 */}
-              {files.length > 0 && (
-                <div className="mb-4 max-h-40 overflow-y-auto">
-                  <div className="space-y-2">
-                    {files.map((file, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg"
-                      >
-                        <span className="text-sm text-gray-700 flex-1 truncate">{file.title || file.name}</span>
-                        <button
-                          onClick={() => {
-                            setFiles(files.filter((_, i) => i !== index));
-                          }}
-                          className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 确认按钮 */}
+              {/* 取消按钮 */}
               <div className="flex gap-3">
                 <button
                   onClick={() => {
                     setShowFolderEditor(false);
-                    setFolderName('');
-                    setFiles([]);
                   }}
                   className="flex-1 bg-gray-100 text-gray-900 rounded-xl py-3 text-base font-medium hover:bg-gray-200 active:bg-gray-300 transition-colors"
                 >
                   取消
-                </button>
-                <button
-                  onClick={() => {
-                    if (folderName.trim()) {
-                      // 保存文件夹信息到列表
-                      setAddedFolders([...addedFolders, { name: folderName, files: [...files] }]);
-                      setShowFolderEditor(false);
-                      setFolderName('');
-                      setFiles([]);
-                    }
-                  }}
-                  className="flex-1 bg-blue-500 text-white rounded-xl py-3 text-base font-medium hover:bg-blue-600 active:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!folderName.trim()}
-                >
-                  确认
                 </button>
               </div>
             </div>
